@@ -1,0 +1,806 @@
+[
+  {
+    "artist": "An Anderson",
+    "album": "WROD",
+    "year": 2026,
+    "release_date": "2026-10-01",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://ananderson.bandcamp.com/album/wrod",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Stagg Hill",
+    "album": "Wondering",
+    "year": 2026,
+    "release_date": "2026-10-01",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2058893"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2058893-stagg-hill-wondering.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Tamorri",
+    "album": "Tamorri",
+    "year": 2026,
+    "release_date": "2026-10-01",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2058736"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2058736-tamorri-tamorri.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Chemtrail",
+    "album": "Crossing the Night",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "postrocknation:22946"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/22946/crossing-the-night"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Gat Osken",
+    "album": "Baratri d'Azzurro e Pozzi di Fuoco",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "postrocknation:22947"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/22947/baratri-dazzurro-e-pozzi-di-fuoco"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Llueven Animales",
+    "album": "Sifo Curso",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "postrocknation:22952"
+    ],
+    "source_urls": [
+      "https://lluevenanimales.bandcamp.com/album/sifo-curso",
+      "https://postrocknation.com/albums/22952/sifo-curso",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Noswal",
+    "album": "Dreams of Floating Away",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "postrocknation:23017"
+    ],
+    "source_urls": [
+      "https://noswal.bandcamp.com/album/dreams-of-floating-away",
+      "https://postrocknation.com/albums/23017/dreams-of-floating-away",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Our Ceasing Voice",
+    "album": "The Origin of Everything",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "postrocknation:22972"
+    ],
+    "source_urls": [
+      "https://ourceasingvoice.bandcamp.com/album/the-origin-of-everything",
+      "https://postrocknation.com/albums/22972/the-origin-of-everything",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Seasonal",
+    "album": "Purpose",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "postrocknation:22943"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/22943/purpose"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "The Album Leaf",
+    "album": "A Body of Voices",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://thealbumleaf.bandcamp.com/album/a-body-of-voices",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Son of Svetovit",
+    "album": "CAPE ARKONA",
+    "year": 2026,
+    "release_date": "2026-10-03",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2061986"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2061986-son-of-svetovit-cape-arkona.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Monotronaut",
+    "album": "Infinite Bloom",
+    "year": 2026,
+    "release_date": "2026-10-08",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "postrocknation:26110"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/26110/infinite-bloom"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Bilderbuch",
+    "album": "∞+1",
+    "year": 2026,
+    "release_date": "2026-10-09",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://record.club/releases/albums/bilderbuch-r-80b5678252"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Hour",
+    "album": "Ghost Bridge",
+    "year": 2026,
+    "release_date": "2026-10-09",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:1973716"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/1973716-hour-ghost-bridge.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Shortparis",
+    "album": "Илиада",
+    "year": 2026,
+    "release_date": "2026-10-09",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2071341"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2071341-shortparis-.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Steak",
+    "album": "Steak",
+    "year": 2026,
+    "release_date": "2026-10-09",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2070707"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2070707-steak-steak.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "The American Dollar",
+    "album": "Quieto Enfoque Sacude",
+    "year": 2026,
+    "release_date": "2026-10-09",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://theamericandollar.bandcamp.com/album/quieto-enfoque-sacude",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Toundra",
+    "album": "Siete",
+    "year": 2026,
+    "release_date": "2026-10-09",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:1820524"
+    ],
+    "source_urls": [
+      "https://toundra.bandcamp.com/album/siete",
+      "https://www.albumoftheyear.org/album/1820524-toundra-siete.php",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Caspian",
+    "album": "Caspian",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2021472"
+    ],
+    "source_urls": [
+      "https://caspiantheband.bandcamp.com/album/caspian",
+      "https://www.albumoftheyear.org/album/2021472-caspian-caspian.php",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Juno Togiak",
+    "album": "Dead Cold, a Liar",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2085080"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2085080-juno-togiak-dead-cold-a-liar.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Madrugada Marginal",
+    "album": "A Pianista",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2085588"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2085588-madrugada-marginal-a-pianista.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Ranges",
+    "album": "If",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://ranges.bandcamp.com/album/if",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Shy, Low",
+    "album": "Purity Spiral",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://shylowmusic.bandcamp.com/album/purity-spiral",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Sidus_GR",
+    "album": "Lotus",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://sidus-gr.bandcamp.com/album/lotus",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Threestepstotheocean",
+    "album": "Death of Permanence",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://threestepstotheocean.bandcamp.com/album/death-of-permanence",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "My Deep Rest",
+    "album": "A Heavy Feeling I Can't Quite Describe",
+    "year": 2026,
+    "release_date": "2026-10-17",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2080412"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2080412-my-deep-rest-a-heavy-feeling-i-cant-quite-describe.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "GO FORWARD IN FLAMES",
+    "album": "Liminal Spaces",
+    "year": 2026,
+    "release_date": "2026-10-23",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://goforwardinflames.bandcamp.com/album/liminal-spaces",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "The Samuel Jackson Five",
+    "album": "A Passage to Elsewhere",
+    "year": 2026,
+    "release_date": "2026-10-30",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [],
+    "source_urls": [
+      "https://thesamueljackson5.bandcamp.com/album/a-passage-to-elsewhere",
+      "https://www.reddit.com/r/postrock/wiki/albums/2026/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Valified Fawn",
+    "album": "Nothing makes sense.",
+    "year": 2026,
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "album",
+    "source_ids": [
+      "aoty:2109576"
+    ],
+    "source_urls": [
+      "https://www.albumoftheyear.org/album/2109576-valified-fawn-nothing-makes-sense.php"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "The Samuel Jackson Five",
+    "album": "A Passage to Elsewhere",
+    "year": 2026,
+    "release_date": "2026-10-30",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38876112"
+    ],
+    "source_urls": [
+      "https://thesamueljackson5.bandcamp.com/album/a-passage-to-elsewhere",
+      "https://www.discogs.com/release/38876112-The-Samuel-Jackson-Five-A-Passage-to-Elsewhere"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Le_mol",
+    "album": "SPLIT SPLIT",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38864373"
+    ],
+    "source_urls": [
+      "https://www.discogs.com/release/38864373-Le_mol-SPLIT-SPLIT",
+      "https://www.noiseappeal.com/2026/10/16/happy-release-day-le_mol-split-split/"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Morten Georg Gismervik",
+    "album": "Starfall",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38793330"
+    ],
+    "source_urls": [
+      "https://purpletheoryrecords.bandcamp.com/album/starfall",
+      "https://www.discogs.com/release/38793330-Morten-Georg-Gismervik-Starfall"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "hwy51",
+    "album": "Return Of Light Of No Return",
+    "year": 2026,
+    "release_date": "2026-10-09",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38777829"
+    ],
+    "source_urls": [
+      "https://hwy51.bandcamp.com/album/return-of-light-of-no-return",
+      "https://www.discogs.com/release/38777829-hwy51-Return-Of-Light-Of-No-Return"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Shy, Low",
+    "album": "Purity Spiral",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38777670",
+      "discogs-master:4390506"
+    ],
+    "source_urls": [
+      "https://shylowmusic.bandcamp.com/album/purity-spiral",
+      "https://www.discogs.com/release/38777670-Shy-Low-Purity-Spiral"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Go Forward in Flames",
+    "album": "Liminal Spaces",
+    "year": 2026,
+    "release_date": "2026-10-23",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38750433"
+    ],
+    "source_urls": [
+      "https://goforwardinflames.bandcamp.com/album/liminal-spaces",
+      "https://www.discogs.com/release/38750433-Go-Forward-in-Flames-Liminal-Spaces"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Caspian",
+    "album": "Caspian",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38750373",
+      "discogs-master:4378647"
+    ],
+    "source_urls": [
+      "https://caspiantheband.bandcamp.com/album/caspian",
+      "https://www.discogs.com/release/38750373-Caspian-3-Caspian"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "British Birds",
+    "album": "Murmurate, Oscillate",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38746671",
+      "discogs-master:4381647"
+    ],
+    "source_urls": [
+      "https://britishbirds.bandcamp.com/album/murmurate-oscillate",
+      "https://www.discogs.com/release/38746671-British-Birds-Murmurate-Oscillate"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Eden",
+    "album": "Eden IV",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38732745"
+    ],
+    "source_urls": [
+      "https://playnflatemedialab.bandcamp.com/album/pnfl048-eden-iv",
+      "https://www.discogs.com/release/38732745-Eden-145-Eden-IV"
+    ],
+    "notes": "Improvised session recorded in 2024; released in 2026."
+  },
+  {
+    "artist": "Civic Hall",
+    "album": "The Dead Bell",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38722329"
+    ],
+    "source_urls": [
+      "https://thehumblebee.bandcamp.com/album/the-dead-bell",
+      "https://www.discogs.com/release/38722329-Civic-Hall-The-Dead-Bell"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Ranges",
+    "album": "If",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38716872",
+      "discogs-master:4385277"
+    ],
+    "source_urls": [
+      "https://ranges.bandcamp.com/album/if",
+      "https://www.discogs.com/release/38716872-Ranges-If"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Oruma",
+    "album": "I",
+    "year": 2026,
+    "release_date": "2026-10-23",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38709228"
+    ],
+    "source_urls": [
+      "https://sklep.gusstaff.com/oruma-rzepka-ruminski-barski-i-cd.html",
+      "https://www.discogs.com/release/38709228-Oruma-I"
+    ],
+    "notes": "Domestic label premiere; a later distributor date is 2026-11-13."
+  },
+  {
+    "artist": "Worriedaboutsatan",
+    "album": "Outland",
+    "year": 2026,
+    "release_date": "2026-10-06",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38703252",
+      "discogs-master:4375017"
+    ],
+    "source_urls": [
+      "https://worriedaboutsatan.bandcamp.com/album/outland",
+      "https://www.discogs.com/release/38703252-Worriedaboutsatan-Outland"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "CrAwE",
+    "album": "Torc Bound Ley Lines. Music For Flat Horizons And Celestial Shires",
+    "year": 2026,
+    "release_date": "2026-10-08",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38651601"
+    ],
+    "source_urls": [
+      "https://triplemoonrecords.bandcamp.com/album/torc-bound-ley-lines-music-for-flat-horizons-and-celestial-shires",
+      "https://www.discogs.com/release/38651601-CrAwE-Torc-Bound-Ley-Lines-Music-For-Flat-Horizons-And-Celestial-Shires"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Toundra",
+    "album": "Siete",
+    "year": 2026,
+    "release_date": "2026-10-09",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38640609",
+      "discogs-master:4373538"
+    ],
+    "source_urls": [
+      "https://toundra.bandcamp.com/album/siete",
+      "https://www.discogs.com/release/38640609-Toundra-Siete"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Les Marquises",
+    "album": "Malaterre",
+    "year": 2026,
+    "release_date": "2026-10-16",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38623047",
+      "discogs-master:4383336"
+    ],
+    "source_urls": [
+      "https://lesmarquises.bandcamp.com/album/malaterre-2",
+      "https://www.discogs.com/release/38623047-Les-Marquises-Malaterre"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Dave Merson Hess",
+    "album": "meetcute",
+    "year": 2026,
+    "release_date": "2026-10-13",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38616624"
+    ],
+    "source_urls": [
+      "https://davemh.bandcamp.com/album/meetcute",
+      "https://www.discogs.com/release/38616624-Dave-Merson-Hess-meetcute"
+    ],
+    "notes": "Contains one live track."
+  },
+  {
+    "artist": "Omnibdgr",
+    "album": "Drowning In The Static Flow",
+    "year": 2026,
+    "release_date": "2026-10",
+    "date_status": "conflict",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38601648"
+    ],
+    "source_urls": [
+      "https://cruelnaturerecordings.bandcamp.com/album/drowning-in-the-static-flow",
+      "https://www.discogs.com/release/38601648-Omnibdgr-Drowning-In-The-Static-Flow"
+    ],
+    "notes": "Digital pre-order availability and official label date differ; October is confirmed.",
+    "date_candidates": [
+      "2026-10-02",
+      "2026-10-30"
+    ]
+  },
+  {
+    "artist": "Holiday",
+    "album": "Spit, Sputter, Something Else",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38560500"
+    ],
+    "source_urls": [
+      "https://oholiday.bandcamp.com/album/spit-sputter-something-else",
+      "https://www.discogs.com/release/38560500-Holiday-20-Spit-Sputter-Something-Else"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "Giant Sky",
+    "album": "The Further We Go The Deeper It Gets",
+    "year": 2026,
+    "release_date": "2026-10",
+    "date_status": "conflict",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38538015",
+      "discogs-master:4382874"
+    ],
+    "source_urls": [
+      "https://giantskyband.bandcamp.com/album/giant-sky-iii",
+      "https://www.discogs.com/release/38538015-Giantsky-The-Further-We-Go-The-Deeper-It-Gets"
+    ],
+    "notes": "Two companion Giant Sky albums are distinct works. Physical and announced digital dates differ; October is confirmed.",
+    "date_candidates": [
+      "2026-10-02",
+      "2026-10-16"
+    ]
+  },
+  {
+    "artist": "Giantsky",
+    "album": "Giant Sky III",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38537595",
+      "discogs-master:4367439"
+    ],
+    "source_urls": [
+      "https://giantskyband.bandcamp.com/album/giant-sky-iii",
+      "https://www.discogs.com/release/38537595-Giantsky-Giant-Sky-III"
+    ],
+    "notes": ""
+  },
+  {
+    "artist": "BNNT & Radwan Ghazi Moumneh",
+    "album": "A Faithful Daughter",
+    "year": 2026,
+    "release_date": "2026-10-02",
+    "date_status": "primary",
+    "release_type": "album",
+    "source_ids": [
+      "discogs-release:38521845",
+      "discogs-master:4389027"
+    ],
+    "source_urls": [
+      "https://bnnt.bandcamp.com/album/a-faithful-daughter",
+      "https://www.discogs.com/release/38521845-BNNT-Radwan-Ghazi-Moumneh-A-Faithful-Daughter"
+    ],
+    "notes": ""
+  }
+]

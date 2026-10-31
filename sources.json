@@ -1,0 +1,16 @@
+{
+  "musicbrainz": true,
+  "seed_file": "seeds.json",
+  "bandcamp_catalogs": [
+    "https://dunkrecords.bandcamp.com/music",
+    "https://caspiantheband.bandcamp.com/music",
+    "https://ranges.bandcamp.com/music",
+    "https://shylowmusic.bandcamp.com/music",
+    "https://hubrisband.bandcamp.com/music",
+    "https://thesamueljackson5.bandcamp.com/music",
+    "https://goforwardinflames.bandcamp.com/music",
+    "https://welostthesea.bandcamp.com/music",
+    "https://ifthesetreescouldtalk.bandcamp.com/music"
+  ],
+  "bandcamp_albums": []
+}

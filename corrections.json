@@ -1,0 +1,51 @@
+[
+  {
+    "source_id": "bandcamp:586725263",
+    "canonical_artist": "Eden",
+    "canonical_album": "Eden IV",
+    "note": "Bandcamp title includes the label catalog number PNFL048: https://playnflatemedialab.bandcamp.com/album/pnfl048-eden-iv"
+  },
+  {
+    "artist": "Bye Horus",
+    "album": "Magonia",
+    "release_type": "ep",
+    "note": "The artist describes Magonia as an EP: https://byehorus.bandcamp.com/album/magonia"
+  },
+  {
+    "artist": "Double Mint Dragon",
+    "album": "Post Organic",
+    "release_type": "ep",
+    "note": "Announced as an EP: https://feckingbahamas.com/exclusive-double-mint-dragon-exhales-a-transcendant-new-single-with-holographic-fern"
+  },
+  {
+    "artist": "NokENok",
+    "album": "내 옷은 냄새가 없다.",
+    "canonical_artist": "NokENok",
+    "canonical_album": "My Clothes Have No Smell"
+  },
+  {
+    "artist": "NokENok",
+    "album": "My Clothes Have No Smell",
+    "release_date": "2026-06-16",
+    "source_url": "https://nokenok.bandcamp.com/album/my-clothes-have-no-smell",
+    "note": "October 2026 is a later edition, not the original album release."
+  },
+  {
+    "artist": "TotorRo",
+    "album": "All Glory To John Baltor",
+    "release_date": "2011-10-26",
+    "source_url": "https://totorro.bandcamp.com/album/all-glory-to-john-baltor"
+  },
+  {
+    "artist": "Our Last Hope Lost Hope",
+    "album": "Persist",
+    "release_date": "2011-11-29",
+    "source_url": "https://ourlasthopelosthope.bandcamp.com/album/persist"
+  },
+  {
+    "artist": "Vyva Melinkolya",
+    "album": "Unbecoming",
+    "release_date": "2023-11-09",
+    "source_url": "https://vyva-melinkolyaky.bandcamp.com/album/unbecoming-2"
+  }
+]
