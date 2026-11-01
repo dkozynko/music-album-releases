@@ -1,4 +1,8 @@
 {
+  "sputnikmusic": true,
+  "discogs": true,
+  "reddit": true,
+  "reddit_mode": "auto",
   "musicbrainz": true,
   "seed_file": "seeds.json",
   "bandcamp_catalogs": [

@@ -1,0 +1,2 @@
+# Optional: Reddit HTML import using installed Google Chrome.
+playwright>=1.52,<2

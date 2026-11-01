@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Update a personal post-rock catalog. Python standard library only."""
+"""Update a personal post-rock catalog; optional Playwright for Reddit HTML."""
 
 import argparse
+import base64
 import calendar
 import csv
 from datetime import date
@@ -27,9 +28,10 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parent
 USER_AGENT = "music-album-releases/0.1 (https://github.com/dkozynko/music-album-releases)"
-FIELDS = ["id", "year", "artist", "album", "release_date", "date_status",
+FIELDS = ["id", "year", "artist", "album", "styles", "release_date", "date_status",
           "release_type", "date_candidates", "source_ids", "source_urls", "notes"]
-LIST_FIELDS = {"date_candidates", "source_ids", "source_urls"}
+LEGACY_FIELDS = [field for field in FIELDS if field != "styles"]
+LIST_FIELDS = {"styles", "date_candidates", "source_ids", "source_urls"}
 STATUSES = {"unknown", "reported", "primary", "corrected", "conflict"}
 NON_ALBUMS = {"ep", "single", "live", "compilation", "remix", "demo", "reissue", "excluded"}
 
@@ -75,6 +77,15 @@ def string_list(value):
     return value
 
 
+def style_list(value):
+    labels = {" ".join(html.unescape(v).split()) for v in string_list(value)}
+    unique = {}
+    for label in sorted(labels, key=lambda v: (v.casefold(), v)):
+        if label:
+            unique.setdefault(normalized(label) or label.casefold(), label)
+    return list(unique.values())
+
+
 def checked_url(value):
     parts = urlsplit(value)
     if parts.scheme not in {"https", "http"} or not parts.hostname or parts.username or parts.password:
@@ -106,6 +117,7 @@ def prepare(record):
     row["release_type"] = str(row.get("release_type", "album")).strip().lower()
     if row["release_type"] not in NON_ALBUMS | {"album"}:
         raise ValueError(f"Unknown release type: {row['release_type']}")
+    row["styles"] = style_list(string_list(row.get("styles", [])) + string_list(row.get("tags", [])))
     row["source_ids"] = sorted({v for v in string_list(row.get("source_ids", []))
                                 if v.partition(":")[2] and v.partition(":")[2] not in {"0", "null", "None"}})
     row["source_urls"] = sorted({checked_url(v) for v in string_list(row.get("source_urls", []))})
@@ -177,6 +189,8 @@ def resolve_dates(rows):
     active = pinned or candidates
     if not active:
         return "", "unknown", candidates
+    # A compatible year/month-only claim adds no disagreement to more precise claims.
+    active = [v for v in active if not any(other != v and other.startswith(v) for other in active)]
     longest = max(active, key=len)
     if all(longest.startswith(v) for v in active):
         status = "corrected" if pinned else "primary" if any(r["date_status"] == "primary" for r in rows) else "reported"
@@ -235,6 +249,7 @@ def merge_catalog(observations, existing=(), corrections=()):
         output.append({
             "id": identifier, "year": int(value[:4]) if value else preferred["year"],
             "artist": preferred["artist"], "album": preferred["album"],
+            "styles": style_list([v for r in group for v in r["styles"]]),
             "release_date": value, "date_status": status, "release_type": "album",
             "date_candidates": candidates,
             "source_ids": sorted({v for r in group for v in r["source_ids"]}),
@@ -325,8 +340,8 @@ def parse_bandcamp_album(document, url):
         "artist": current.get("artist") or data.get("artist"), "album": title,
         "year": int(value[:4]) if value else None,
         "release_date": value, "date_status": "primary" if value else "unknown",
-        "release_type": kind, "source_ids": [f"bandcamp:{current['id']}"],
-        "source_urls": [bandcamp_url(url)], "notes": "", "tags": page.tags,
+        "release_type": kind, "source_ids": [f"bandcamp:{current['id']}", "bandcamp-url:" + bandcamp_url(url)],
+        "source_urls": [bandcamp_url(url)], "notes": "", "tags": page.tags, "styles": style_list(page.tags),
     }
 
 
@@ -349,10 +364,367 @@ def parse_musicbrainz(payload, year=None):
         output.append({
             "artist": artist, "album": group["title"], "year": int(value[:4]) if value else year,
             "release_date": value, "date_status": "reported" if value else "unknown", "release_type": kind,
+            "styles": style_list([tag["name"] for tag in group.get("tags", [])]),
             "source_ids": ["musicbrainz:" + group["id"]],
             "source_urls": ["https://musicbrainz.org/release-group/" + group["id"]], "notes": "",
         })
     return output
+
+
+def discogs_formats(payload):
+    values = list(payload.get("format", []))
+    for item in payload.get("formats", []):
+        values += [item["name"]] + item.get("descriptions", [])
+    return {normalized(value) for value in values}
+
+
+def discogs_non_album(payload):
+    kinds = discogs_formats(payload)
+    title = payload.get("title", "")
+    return bool(kinds & {"ep", "single", "compilation", "mixed", "unofficialrelease", "demo", "remix", "live"} or
+                any(normalized(v.get("name", "")) in {"various", "variousartists"} for v in payload.get("artists", [])) or
+                re.search(r"\blive\s*(?:$|@|at\b|in\b|from\b|session\b)|\(live\)|"
+                          r"(?:^|[\s([])e\.?p\.?(?:\d+|$|[\s)\]])|\b(?:demos|remixes)\b", title, re.I))
+
+
+def discogs_observation(payload, value, identifiers, url):
+    credits = []
+    for item in payload["artists"]:
+        name = re.sub(r"\s+\(\d+\)$", "", item["name"]).strip()
+        join = item.get("join", "").strip()
+        credits.append(name + (" " + join + " " if join else " "))
+    return prepare({"artist": "".join(credits).strip(), "album": payload["title"],
+                    "release_date": value, "year": int(value[:4]), "date_status": "reported",
+                    "release_type": "album", "styles": payload.get("styles") or [],
+                    "source_ids": identifiers, "source_urls": [url], "notes": ""})
+
+
+def parse_discogs_master(payload, year, release_ids=()):
+    original_year = int(payload["year"])
+    if not 1 <= original_year <= 9999 or int(payload["id"]) <= 0:
+        raise ValueError("Discogs master has no valid original year or identifier")
+    if original_year != year or discogs_non_album(payload):
+        return None
+    identifier = int(payload["id"])
+    ids = [f"discogs-master:{identifier}"] + [f"discogs-release:{v}" for v in release_ids if int(v) > 0]
+    # A main release is a representative edition, not evidence of the first day.
+    return discogs_observation(payload, str(original_year), ids, f"https://www.discogs.com/master/{identifier}")
+
+
+def parse_discogs_release(payload, year):
+    kinds = discogs_formats(payload)
+    if "album" not in kinds or kinds & {"reissue", "repress", "remastered"} or discogs_non_album(payload):
+        return None
+    if not any(normalized(v) == "postrock" for v in payload.get("styles", [])):
+        return None
+    value = normalize_date(payload.get("released") or payload.get("year"))
+    if not value or int(value[:4]) != year:
+        return None
+    identifier = int(payload["id"])
+    if identifier <= 0:
+        raise ValueError("Discogs release has no valid identifier")
+    return discogs_observation(payload, value, [f"discogs-release:{identifier}"],
+                               f"https://www.discogs.com/release/{identifier}")
+
+
+def collect_discogs(client, years):
+    rows, errors = [], []
+    for year in sorted(years):
+        releases, seen, page, pages = {}, set(), 1, 1
+        while page <= pages:
+            try:
+                query = urlencode({"type": "release", "style": "Post Rock", "format": "Album",
+                                   "year": year, "per_page": 100, "page": page})
+                payload = json.loads(client.get("https://api.discogs.com/database/search?" + query))
+                results, pagination = payload["results"], payload["pagination"]
+                if not isinstance(results, list) or int(pagination["page"]) != page:
+                    raise ValueError("Unexpected Discogs search page structure")
+                pages = int(pagination["pages"])
+                ids = {int(item["id"]) for item in results}
+                if ids and min(ids) <= 0 or page > 1 and not ids.difference(seen) or not results and int(pagination["items"]):
+                    raise ValueError("Discogs pagination did not advance")
+                seen.update(ids)
+                for item in results:
+                    if item.get("type") != "release" or str(item.get("year")) != str(year):
+                        continue
+                    if not any(normalized(v) == "postrock" for v in item.get("style", [])):
+                        continue
+                    if "album" in discogs_formats(item) and not discogs_non_album(item):
+                        releases[int(item["id"])] = item
+                items, per_page = int(pagination["items"]), int(pagination["per_page"])
+                if items < 0 or per_page <= 0 or pages < 0:
+                    raise ValueError("Invalid Discogs pagination metadata")
+                expected_pages = (items + per_page - 1) // per_page
+                if items and (pages != expected_pages or page > pages) or not items and (results or pages not in {0, 1}):
+                    raise ValueError("Inconsistent Discogs pagination; source may be incomplete")
+                if page == 1 or page % 5 == 0 or page == pages:
+                    print(f"Discogs {year}: search page {page}/{pages}, {len(releases)} candidate editions", file=sys.stderr, flush=True)
+                page += 1
+            except (ValueError, KeyError, TypeError) as error:
+                errors.append(f"Discogs {year} search page {page}: {error}. Set DISCOGS_TOKEN if API authentication is required.")
+                break
+        masters, standalone = {}, []
+        for identifier, item in releases.items():
+            try:
+                master_id = int(item.get("master_id") or 0)
+                if master_id < 0:
+                    raise ValueError("Negative master identifier")
+                if master_id > 0:
+                    masters.setdefault(master_id, set()).add(identifier)
+                else:
+                    standalone.append(identifier)
+            except (ValueError, TypeError) as error:
+                errors.append(f"Discogs {year} release {identifier} master association: {error}")
+        for index, identifier in enumerate(sorted(standalone), 1):
+            try:
+                payload = json.loads(client.get(f"https://api.discogs.com/releases/{identifier}"))
+                if int(payload["id"]) != identifier:
+                    raise ValueError("Discogs returned a different release")
+                master_id = int(payload.get("master_id") or 0)
+                if master_id < 0:
+                    raise ValueError("Negative master identifier")
+                if master_id > 0:
+                    releases[identifier]["style"] = style_list(releases[identifier].get("style", []) + (payload.get("styles") or []))
+                    masters.setdefault(master_id, set()).add(identifier)
+                else:
+                    row = parse_discogs_release(payload, year)
+                    if row:
+                        row["styles"] = style_list(row["styles"] + releases[identifier].get("style", []))
+                        rows.append(row)
+            except (ValueError, KeyError, TypeError) as error:
+                errors.append(f"Discogs {year} release {identifier}: {error}")
+            if index % 25 == 0:
+                print(f"Discogs {year}: checked {index}/{len(standalone)} masterless releases", file=sys.stderr, flush=True)
+        for index, (identifier, editions) in enumerate(sorted(masters.items()), 1):
+            try:
+                payload = json.loads(client.get(f"https://api.discogs.com/masters/{identifier}"))
+                if int(payload["id"]) != identifier:
+                    raise ValueError("Discogs returned a different master")
+                row = parse_discogs_master(payload, year, sorted(editions))
+                if row:
+                    row["styles"] = style_list(row["styles"] + [v for rid in editions for v in releases[rid].get("style", [])])
+                    rows.append(row)
+            except (ValueError, KeyError, TypeError) as error:
+                errors.append(f"Discogs {year} master {identifier}: {error}")
+            if index % 25 == 0:
+                print(f"Discogs {year}: checked {index}/{len(masters)} masters", file=sys.stderr, flush=True)
+    return rows, errors
+
+
+class WikiTables(HTMLParser):
+    """Read actual cells and anchors, including nested formatting and literal pipes."""
+    def __init__(self, document):
+        super().__init__(convert_charrefs=True)
+        self.tables, self.table, self.row, self.cell = [], [], [], None
+        self.depth = 0
+        self.anchor = None
+        self.feed(document)
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "table":
+            self.depth += 1
+            if self.depth == 1:
+                self.table = []
+        if self.depth != 1:
+            return
+        if tag == "tr":
+            self.row = []
+        elif tag in {"th", "td"}:
+            self.cell = {"text": [], "links": []}
+        elif tag == "a" and self.cell is not None:
+            self.anchor = (attrs.get("href", ""), len(self.cell["text"]))
+        elif tag == "br" and self.cell is not None:
+            self.cell["text"].append(" ")
+
+    def handle_data(self, value):
+        if self.depth == 1 and self.cell is not None:
+            self.cell["text"].append(value)
+
+    def handle_endtag(self, tag):
+        if self.depth == 1:
+            if tag == "a" and self.anchor is not None and self.cell is not None:
+                url, start = self.anchor
+                self.cell["links"].append((url, "".join(self.cell["text"][start:]).strip()))
+                self.anchor = None
+            elif tag in {"th", "td"} and self.cell is not None:
+                self.cell["text"] = " ".join("".join(self.cell["text"]).split())
+                self.row.append(self.cell)
+                self.cell = None
+            elif tag == "tr" and self.row:
+                self.table.append(self.row)
+            elif tag == "table":
+                self.tables.append(self.table)
+        if tag == "table":
+            self.depth = max(0, self.depth - 1)
+
+
+def reddit_date(raw, year):
+    raw = " ".join(raw.split())
+    if re.fullmatch(r"\d{4}(?:-\d{2}){0,2}", raw):
+        value = normalize_date(raw)
+    else:
+        months = {name.casefold(): i for i in range(1, 13)
+                  for name in (calendar.month_name[i], calendar.month_abbr[i])}
+        exact = re.fullmatch(r"([A-Za-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(\d{4}))?", raw, re.I)
+        if exact and exact[1].casefold() in months:
+            value = normalize_date(f"{int(exact[3] or year):04d}-{months[exact[1].casefold()]:02d}-{int(exact[2]):02d}")
+        else:
+            known = {months[word.casefold()] for word in re.findall(r"[A-Za-z]+", raw) if word.casefold() in months}
+            stated_years = {int(v) for v in re.findall(r"\b\d{4}\b", raw)}
+            if stated_years and stated_years != {year}:
+                raise ValueError(f"Reddit date outside requested year {year}: {raw!r}")
+            value = f"{year:04d}-{next(iter(known)):02d}" if len(known) == 1 else str(year)
+    if int(value[:4]) != year:
+        raise ValueError(f"Reddit date outside requested year {year}: {raw!r}")
+    return value
+
+
+def parse_reddit(payload, year):
+    if not isinstance(payload, dict) or payload.get("kind") != "wikipage" or not isinstance(payload.get("data"), dict):
+        raise ValueError("Reddit returned no wiki page (authentication or API access may be required)")
+    document = payload["data"].get("content_html")
+    if not isinstance(document, str) or not document.strip():
+        raise ValueError("Reddit wiki content_html is missing")
+    if not re.search(r"<table\b", document, re.I):
+        document = html.unescape(document)
+    wiki_url = f"https://www.reddit.com/r/postrock/wiki/albums/{year}/"
+    rows, found_table = [], False
+    for table in WikiTables(document).tables:
+        if not table or len(table[0]) < 3:
+            continue
+        header = [normalized(c["text"]) for c in table[0][:3]]
+        if header[0] != "releasedate" or header[1] not in {"band", "artist"} or not header[2].startswith("album"):
+            continue
+        found_table = True
+        for cells in table[1:]:
+            if not any(c["text"] for c in cells):
+                continue
+            if len(cells) < 3 or not cells[1]["text"] or not cells[2]["text"]:
+                raise ValueError("Malformed Reddit album table row")
+            raw_date, artist, album_cell = cells[0]["text"], cells[1]["text"], cells[2]
+            urls = [checked_url(urljoin(wiki_url, url)) for url, _ in album_cell["links"] if url]
+            album = next((label for _, label in album_cell["links"] if label), album_cell["text"])
+            kind, markers = "album", album_cell["text"]
+            annotation_pattern = r"\((?:\d{4}\s+)?(single|ep|live|compilation|demos?|remix(?:es)?|reissue|re-release|remastered)\)"
+            annotation = re.search(annotation_pattern, markers, re.I)
+            if annotation:
+                label = annotation[1].lower()
+                kind = {"demos": "demo", "remixes": "remix", "re-release": "reissue", "remastered": "reissue"}.get(label, label)
+            elif urls and all("/track/" in u for u in urls):
+                kind = "single"
+            elif re.search(r"(?:^|[\s([])e\.?p\.?(?:\d+|$|[\s)\]])", markers, re.I):
+                kind = "ep"
+            elif re.search(r"\blive\s*(?:$|@|at\b|in\b|from\b|session\b|ritual\b)", markers, re.I):
+                kind = "live"
+            elif re.search(r"\breissues?\b|\bre-?releases?\b|\bremaster(?:ed)?\b", markers, re.I):
+                kind = "reissue"
+            elif re.search(r"\bcompilation\b", markers, re.I) or normalized(artist) in {"various", "variousartists"}:
+                kind = "compilation"
+            elif re.fullmatch(r"demos?", markers, re.I) or re.search(r"\(demos?\)", markers, re.I):
+                kind = "demo"
+            album = re.sub(r"\s*" + annotation_pattern + r"\s*$", "", album, flags=re.I).strip()
+            if not album:
+                raise ValueError("Reddit row has a type annotation but no album title")
+            value = reddit_date(raw_date, year)
+            identifiers = [f"reddit-wiki:{year}:" + hashlib.sha256(album_key(artist, album).encode()).hexdigest()[:16]]
+            # Only the wiki's album cell identifies an album page. Generic source links
+            # may describe several works and must never become identity keys.
+            for url in urls:
+                try:
+                    primary_url = bandcamp_url(url)
+                except ValueError:
+                    continue
+                if urlsplit(primary_url).path.startswith("/album/"):
+                    identifiers.append("bandcamp-url:" + primary_url)
+            rows.append({
+                "artist": artist, "album": album, "year": year, "release_date": value,
+                "date_status": "reported", "release_type": kind,
+                "source_ids": identifiers,
+                "source_urls": sorted(set(urls + [wiki_url])),
+                "notes": "Reddit date: " + raw_date if len(value) < 10 else "",
+            })
+    if not found_table:
+        raise ValueError("Reddit album table missing (possibly a login/challenge page or changed markup)")
+    return rows
+
+
+def reddit_access_token(offline=False):
+    token = os.environ.get("REDDIT_ACCESS_TOKEN", "").strip()
+    if token:
+        return token
+    client_id = os.environ.get("REDDIT_CLIENT_ID", "").strip()
+    secret = os.environ.get("REDDIT_CLIENT_SECRET", "").strip()
+    if not client_id and not secret:
+        return ""
+    if not client_id or not secret:
+        raise ValueError("Set both REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET")
+    if offline:
+        return ""
+    request = Request("https://www.reddit.com/api/v1/access_token",
+                      data=urlencode({"grant_type": "client_credentials", "scope": "wikiread"}).encode(),
+                      headers={"User-Agent": USER_AGENT, "Accept": "application/json",
+                               "Content-Type": "application/x-www-form-urlencoded"})
+    credentials = base64.b64encode(f"{client_id}:{secret}".encode()).decode()
+    request.add_unredirected_header("Authorization", "Basic " + credentials)
+    with urlopen(request, timeout=30) as response:
+        payload = json.loads(response.read(100_000))
+    token = payload.get("access_token")
+    if not isinstance(token, str) or not token or payload.get("token_type", "").lower() != "bearer":
+        raise ValueError("Reddit OAuth returned no bearer token; verify app credentials and Data API access")
+    return token
+
+
+def collect_reddit_browser(years, cache_dir, offline=False, refresh=False, headless=True, timeout=45):
+    rows, errors, pending = [], [], []
+    cache_dir = Path(cache_dir)
+
+    def failed(year, cached, error):
+        suffix = "; using stale wiki cache" if cached is not None else ""
+        errors.append(f"Reddit browser {year}: {error}{suffix}")
+        if cached is not None:
+            rows.extend(cached)
+
+    for year in sorted(years):
+        path = cache_dir / "reddit-wiki" / f"{year}.json"
+        url = f"https://www.reddit.com/r/postrock/wiki/albums/{year}/"
+        cached = None
+        try:
+            if path.exists():
+                snapshot = json.loads(path.read_text(encoding="utf-8"))
+                if snapshot["url"] != url or not isinstance(snapshot["observations"], list):
+                    raise ValueError("Invalid browser wiki cache")
+                cached = [prepare(r) for r in snapshot["observations"]]
+                if any(r["year"] != year for r in cached):
+                    raise ValueError("Browser wiki cache contains another year")
+        except (ValueError, KeyError, TypeError, OSError):
+            cached = None
+        if cached is not None and (offline or not refresh and time.time() - path.stat().st_mtime < 86400):
+            rows.extend(cached)
+        elif offline:
+            failed(year, None, "No valid cached browser wiki; run --reddit-login online first")
+        else:
+            pending.append((year, path, url, cached))
+    if not pending:
+        return rows, errors
+    try:
+        from reddit_browser import RedditBrowser
+        with RedditBrowser(cache_dir.parent / "reddit-browser", headless=headless) as browser:
+            for year, path, url, cached in pending:
+                try:
+                    print(f"Reddit browser {year}: opening wiki ({'headless' if headless else 'visible session setup'})", file=sys.stderr, flush=True)
+                    document = browser.read_wiki(year, timeout=timeout)
+                    batch = parse_reddit({"kind": "wikipage", "data": {"content_html": document}}, year)
+                    # Persist parsed public release facts only, never full-page HTML or session state.
+                    atomic_write(path, json.dumps({"url": url, "observations": batch}, ensure_ascii=False))
+                    rows.extend(batch)
+                    print(f"Reddit browser {year}: {len(batch)} release observations", file=sys.stderr, flush=True)
+                except (ValueError, KeyError, TypeError, OSError) as error:
+                    failed(year, cached, error)
+    except (ImportError, ValueError, OSError) as error:
+        for year, _, _, cached in pending:
+            failed(year, cached, error)
+    return rows, errors
 
 
 def atomic_write(path, content):
@@ -376,6 +748,10 @@ class HTTPClient:
         self.offline, self.refresh = offline, refresh
         self.last_request = 0.0
         self.errors = []
+        self.reddit_token = os.environ.get("REDDIT_ACCESS_TOKEN", "").strip()
+        self.discogs_token = os.environ.get("DISCOGS_TOKEN", "").strip()
+        if any(not 33 <= ord(c) <= 126 for c in self.discogs_token):
+            raise ValueError("DISCOGS_TOKEN contains invalid characters")
 
     def get(self, url):
         checked_url(url)
@@ -389,7 +765,8 @@ class HTTPClient:
             raise ValueError(f"No cached response for {url}")
         failure = None
         for attempt in range(3):
-            time.sleep(max(0, 1.1 - (time.monotonic() - self.last_request)))
+            interval = 2.5 if urlsplit(url).hostname == "api.discogs.com" and not self.discogs_token else 1.1
+            time.sleep(max(0, interval - (time.monotonic() - self.last_request)))
             self.last_request = time.monotonic()
             try:
                 if urlsplit(url).hostname.endswith(".bandcamp.com") and shutil.which("curl"):
@@ -408,6 +785,11 @@ class HTTPClient:
                         raise HTTPError(url, int(status), "HTTP source error", {}, None)
                 else:
                     request = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json,text/html;q=0.9"})
+                    if urlsplit(url).hostname == "oauth.reddit.com" and self.reddit_token:
+                        # Never carry the token to a redirect target or persist it in cache metadata.
+                        request.add_unredirected_header("Authorization", "Bearer " + self.reddit_token)
+                    if urlsplit(url).hostname == "api.discogs.com" and self.discogs_token:
+                        request.add_unredirected_header("Authorization", "Discogs token=" + self.discogs_token)
                     with urlopen(request, timeout=30) as response:
                         raw = response.read(10_000_001)
                         if len(raw) > 10_000_000:
@@ -433,11 +815,51 @@ class HTTPClient:
 
     @staticmethod
     def is_challenge(body):
-        return bool(re.search(r"<title[^>]*>\s*(?:Client Challenge|Just a moment)", body, re.I))
+        return bool(re.search(r"<title[^>]*>[^<]*(?:Client Challenge|Just a moment|Prove your humanity)|"
+                              r"name=[\"']js_challenge[\"']|you've been blocked by network security", body, re.I))
 
 
 def collect_sources(config, years, client, seeds, existing=()):
     rows, errors = list(seeds), []
+    if config.get("sputnikmusic", False):
+        from sputnik import collect_sputnik
+        batch, warnings = collect_sputnik(client, years, existing)
+        rows.extend(batch)
+        errors.extend(warnings)
+    if config.get("discogs", False):
+        batch, warnings = collect_discogs(client, years)
+        rows.extend(batch)
+        errors.extend(warnings)
+    reddit_mode = config.get("reddit_mode", "api")
+    if reddit_mode == "auto":
+        reddit_mode = "api" if os.environ.get("REDDIT_ACCESS_TOKEN") or os.environ.get("REDDIT_CLIENT_ID") else "browser"
+    if config.get("reddit", False) and reddit_mode == "browser":
+        batch, warnings = collect_reddit_browser(years, client.cache_dir,
+                                                 offline=getattr(client, "offline", False),
+                                                 refresh=getattr(client, "refresh", False),
+                                                 timeout=config.get("reddit_timeout", 45))
+        rows.extend(batch)
+        errors.extend(warnings)
+    elif config.get("reddit", False) and reddit_mode == "api":
+        try:
+            client.reddit_token = reddit_access_token(offline=getattr(client, "offline", False))
+        except (ValueError, KeyError, TypeError, OSError) as error:
+            errors.append(f"Reddit authentication: {error}")
+            reddit_years = []
+        else:
+            reddit_years = sorted(years)
+        for year in reddit_years:
+            try:
+                host = "oauth.reddit.com" if client.reddit_token or os.environ.get("REDDIT_CLIENT_ID") else "www.reddit.com"
+                suffix = "" if host == "oauth.reddit.com" else ".json"
+                url = f"https://{host}/r/postrock/wiki/albums/{year}{suffix}?raw_json=1"
+                batch = parse_reddit(json.loads(client.get(url)), year)
+                rows.extend(batch)
+                print(f"Reddit {year}: {len(batch)} release observations", file=sys.stderr, flush=True)
+            except (ValueError, KeyError, TypeError) as error:
+                errors.append(f"Reddit {year}: {error}. Configure REDDIT_CLIENT_ID + REDDIT_CLIENT_SECRET or REDDIT_ACCESS_TOKEN with wikiread access if anonymous reads are blocked.")
+    elif config.get("reddit", False):
+        errors.append("Reddit: reddit_mode must be auto, browser or api")
     if config.get("musicbrainz", True):
         for year in sorted(years):
             offset, count = 0, 1
@@ -459,8 +881,10 @@ def collect_sources(config, years, client, seeds, existing=()):
                 errors.append(f"MusicBrainz {year}: {error}")
     explicit = {bandcamp_url(v) for v in config.get("bandcamp_albums", [])}
     known_years = {}
-    selected = list(seeds) + [r for r in existing if int(r["year"]) in years]
+    selected = list(rows) + [r for r in existing if int(r["year"]) in years]
     for row in selected:
+        if row.get("release_type", "album") in NON_ALBUMS:
+            continue
         for url in row.get("source_urls", []):
             try:
                 url = bandcamp_url(url)
@@ -499,10 +923,48 @@ def read_catalog(output_dir):
     for path in sorted(output_dir.glob("[0-9][0-9][0-9][0-9].csv")):
         with path.open(encoding="utf-8", newline="") as stream:
             reader = csv.DictReader(stream)
-            if reader.fieldnames != FIELDS:
+            if reader.fieldnames not in (FIELDS, LEGACY_FIELDS):
                 raise ValueError(f"Unexpected CSV columns in {path}; use --input to import other formats")
             rows.extend(prepare(r) for r in reader)
     return rows
+
+
+def enrich_cached_discogs_styles(rows, cache_dir):
+    """Reuse styles of known records even when discovery filters no longer match."""
+    errors = []
+    for row in rows:
+        labels = list(row["styles"])
+        for source_id in row["source_ids"]:
+            match = re.fullmatch(r"discogs-(master|release):([1-9][0-9]*)", source_id)
+            if not match:
+                continue
+            kind, identifier = match.groups()
+            url = f"https://api.discogs.com/{'masters' if kind == 'master' else 'releases'}/{identifier}"
+            path = cache_dir / (hashlib.sha256(url.encode()).hexdigest() + ".json")
+            if not path.exists():
+                continue
+            try:
+                cached = json.loads(path.read_text(encoding="utf-8"))
+                payload = json.loads(cached["body"])
+                if cached["url"] != url or int(payload["id"]) != int(identifier):
+                    raise ValueError("Cached Discogs source identity mismatch")
+                labels += string_list(payload.get("styles") or [])
+            except (ValueError, KeyError, TypeError, OSError) as error:
+                errors.append(f"Discogs styles {source_id}: {error}")
+        row["styles"] = style_list(labels)
+    return errors
+
+
+def retained_exclusions(existing, observations):
+    """Keep source-reported non-albums from returning after a partial refresh."""
+    records = {}
+    for record in list(existing) + list(observations):
+        row = prepare(record)
+        if row["release_type"] not in NON_ALBUMS:
+            continue
+        key = (album_key(row["artist"], row["album"]), row["release_type"], tuple(row["source_ids"]))
+        records[key] = {field: row[field] for field in FIELDS if field != "id"}
+    return [records[key] for key in sorted(records)]
 
 
 def md_text(value):
@@ -512,7 +974,7 @@ def md_text(value):
 def source_link(url):
     checked_url(url)
     host = urlsplit(url).hostname
-    name = "Bandcamp" if host.endswith(".bandcamp.com") else "MusicBrainz" if host == "musicbrainz.org" else "Discogs" if host.endswith("discogs.com") else "AOTY" if host.endswith("albumoftheyear.org") else "Reddit" if host.endswith("reddit.com") else host
+    name = "Bandcamp" if host.endswith(".bandcamp.com") else "MusicBrainz" if host == "musicbrainz.org" else "Discogs" if host.endswith("discogs.com") else "AOTY" if host.endswith("albumoftheyear.org") else "Reddit" if host.endswith("reddit.com") else "Sputnikmusic" if host == "www.sputnikmusic.com" else host
     return f"[{md_text(name)}]({quote(url, safe=':/?=&%#@+~.-_')})"
 
 
@@ -529,10 +991,11 @@ def render_markdown(year, rows):
         buckets.setdefault(month, []).append(row)
     for month in sorted(buckets, key=lambda m: m or 13):
         lines += ["## " + (calendar.month_name[month] if month else "Month unknown / needs review"), "",
-                  "| Date | Artist | Album | Date status | Sources | Notes |",
-                  "| --- | --- | --- | --- | --- | --- |"]
+                  "| Date | Artist | Album | Styles | Date status | Sources | Notes |",
+                  "| --- | --- | --- | --- | --- | --- | --- |"]
         for row in sorted(buckets[month], key=lambda r: (r["release_date"], r["artist"].casefold(), r["album"].casefold())):
-            cells = [row["release_date"] or "Unresolved", row["artist"], row["album"], row["date_status"]]
+            cells = [row["release_date"] or "Unresolved", row["artist"], row["album"],
+                     ", ".join(style_list(row.get("styles", []))) or "—", row["date_status"]]
             links = " ".join(source_link(u) for u in string_list(row["source_urls"]))
             lines.append("| " + " | ".join([*(md_text(v) for v in cells), links, md_text(row["notes"])]) + " |")
         lines.append("")
@@ -573,13 +1036,29 @@ def main(argv=None):
     parser.add_argument("--config", type=Path, default=ROOT / "sources.json")
     parser.add_argument("--corrections", type=Path, default=ROOT / "corrections.json")
     parser.add_argument("--cache-dir", type=Path, default=ROOT / ".cache/http")
-    parser.add_argument("--offline", action="store_true", help="Use cached HTTP responses only")
-    parser.add_argument("--refresh", action="store_true", help="Ignore the 24-hour HTTP cache lifetime")
+    parser.add_argument("--offline", action="store_true", help="Use cached source data only; no browser or network")
+    parser.add_argument("--refresh", action="store_true", help="Ignore the 24-hour source cache lifetime")
     parser.add_argument("--render-only", action="store_true", help="Regenerate Markdown from existing CSV without changing CSV")
+    parser.add_argument("--reddit-browser", action="store_true", help="Read Reddit wiki with headless Chrome instead of the API")
+    parser.add_argument("--reddit-login", action="store_true", help="Open dedicated visible Chrome for sign-in and cache the wiki; do not edit catalogs")
+    parser.add_argument("--reddit-timeout", type=int, help="Seconds per browser wiki (default 45; session setup 300)")
     args = parser.parse_args(argv)
     try:
         for year in args.year:
             date(year, 1, 1)
+        if args.reddit_timeout is not None and not 1 <= args.reddit_timeout <= 600:
+            raise ValueError("--reddit-timeout must be between 1 and 600 seconds")
+        if args.reddit_login:
+            if args.offline or args.input or args.render_only:
+                raise ValueError("--reddit-login cannot be combined with --offline, --input or --render-only")
+            print("A separate Chrome profile will open. Sign in or complete any access check yourself, then return to the wiki tab.", flush=True)
+            _, errors = collect_reddit_browser(set(args.year), args.cache_dir, refresh=True,
+                                               headless=False, timeout=args.reddit_timeout or 300)
+            for error in errors:
+                print("Warning: " + error, file=sys.stderr)
+            if not errors:
+                print("Reddit browser session and public wiki cache are ready; run --reddit-browser to update catalogs.")
+            return 1 if errors else 0
         existing = read_catalog(args.output_dir)
         if args.render_only:
             for year in args.year:
@@ -589,20 +1068,29 @@ def main(argv=None):
             return 0
         corrections = load_list(args.corrections)
         validate_corrections(corrections)
+        exclusions_path = args.output_dir / "excluded.json"
+        excluded = load_list(exclusions_path) if exclusions_path.exists() else []
         errors = []
         if args.input:
             observations = load_list(args.input)
         else:
             config = json.loads(args.config.read_text(encoding="utf-8"))
+            if args.reddit_browser:
+                config.update(reddit=True, reddit_mode="browser")
+            if args.reddit_timeout is not None:
+                config["reddit_timeout"] = args.reddit_timeout
             seeds = load_list(args.config.parent / config.get("seed_file", "seeds.json"))
             seeds = [r for r in seeds if int(r.get("year") or r["release_date"][:4]) in args.year]
             client = HTTPClient(args.cache_dir, args.offline, args.refresh)
             observations, errors = collect_sources(config, set(args.year), client, seeds, existing)
             errors += client.errors
-        rows = merge_catalog(observations, existing, corrections)
-        if not rows and errors:
+        rows = merge_catalog(list(observations) + excluded, existing, corrections)
+        errors += enrich_cached_discogs_styles(rows, args.cache_dir)
+        if not rows and errors and not existing and not observations:
             raise ValueError("All sources failed and there is no existing catalog to preserve")
+        excluded = retained_exclusions(excluded, observations)
         write_catalog(args.output_dir, rows, args.year)
+        atomic_write(exclusions_path, json.dumps(excluded, ensure_ascii=False, indent=2) + "\n")
         for error in errors:
             print("Warning: " + error, file=sys.stderr)
         return 1 if errors else 0
