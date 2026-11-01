@@ -215,19 +215,54 @@ def merge_catalog(observations, existing=(), corrections=()):
             i = parents[i]
         return i
 
-    for i, row in enumerate(rows):
-        identities = ["name:" + album_key(row["artist"], row["album"])] + row["source_ids"]
-        if row.get("id"):
-            identities.append("saved:" + row["id"])
-        for identity in identities:
-            if identity in seen:
-                parents[find(i)] = find(seen[identity])
-            else:
-                seen[identity] = i
+    prn_singles = {i for i, row in enumerate(rows) if row["release_type"] == "single" and
+                   any(value.startswith("postrocknation:") for value in row["source_ids"])}
+
+    def link_rows(separate_formats=(), isolate_singles=False):
+        for i, row in enumerate(rows):
+            private_single = isolate_singles and i in prn_singles and i not in separate_formats
+            suffix = (":album" if row["release_type"] == "album" else ":nonalbum") if i in separate_formats else ":prn-single" if private_single else ""
+            name = "native-single:" + "|".join(v for v in row["source_ids"] if v.startswith("postrocknation:")) if private_single else "name:" + album_key(row["artist"], row["album"]) + suffix
+            identities = [name]
+            identities += [value + suffix if value.startswith(("reddit-wiki:", "bandcamp-url:")) else value
+                           for value in row["source_ids"]]
+            if row.get("id"):
+                identities.append("saved:" + row["id"])
+            for identity in identities:
+                if identity in seen:
+                    parents[find(i)] = find(seen[identity])
+                else:
+                    seen[identity] = i
+
+    link_rows()
+    tentative = {}
+    for i in range(len(rows)):
+        tentative.setdefault(find(i), []).append(i)
+    separate = set()
+    for indices in tentative.values():
+        formats = {}
+        for i in indices:
+            for value in rows[i]["source_ids"]:
+                provider = value.partition(":")[0]
+                if provider in {"postrocknation", "sputnikmusic", "bandcamp", "musicbrainz"}:
+                    bins = formats.setdefault(provider, [set(), set()])
+                    bins[rows[i]["release_type"] != "album"].add(value)
+        # Distinct native release IDs can prove that an album and its title-track
+        # single are separate releases. Synthetic wiki/URL keys must respect that.
+        if any(albums and other and albums.isdisjoint(other) for albums, other in formats.values()):
+            separate.update(indices)
+    if separate or prn_singles:
+        parents[:] = range(len(rows))
+        seen.clear()
+        # PRN's single object can be an album's title track. It can reclassify a
+        # saved native PRN ID, but its name alone must not erase another album.
+        link_rows(separate, isolate_singles=True)
     grouped = {}
     for i, row in enumerate(rows):
         grouped.setdefault(find(i), []).append(row)
     output = []
+    reserved_ids = {row["id"] for row in rows if row.get("id")}
+    assigned_ids = set()
     ranks = {"corrected": 4, "primary": 3, "conflict": 2, "reported": 1, "unknown": 0}
     for group in grouped.values():
         corrected_types = {r["release_type"] for r in group if r.get("_type_corrected")}
@@ -246,6 +281,12 @@ def merge_catalog(observations, existing=(), corrections=()):
             notes.add("Other dates: " + " / ".join(candidates))
         saved_ids = sorted({r["id"] for r in group if r.get("id")})
         identifier = saved_ids[0] if saved_ids else "pr_" + hashlib.sha256(album_key(preferred["artist"], preferred["album"]).encode()).hexdigest()[:16]
+        suffix = 0
+        while not saved_ids and identifier in reserved_ids | assigned_ids:
+            suffix += 1
+            key = album_key(preferred["artist"], preferred["album"]) + "\0" + str(suffix)
+            identifier = "pr_" + hashlib.sha256(key.encode()).hexdigest()[:16]
+        assigned_ids.add(identifier)
         output.append({
             "id": identifier, "year": int(value[:4]) if value else preferred["year"],
             "artist": preferred["artist"], "album": preferred["album"],
@@ -257,6 +298,61 @@ def merge_catalog(observations, existing=(), corrections=()):
             "notes": "\n".join(sorted(notes)),
         })
     return sorted(output, key=lambda r: (r["year"], r["release_date"] or "9999", r["artist"].casefold(), r["album"].casefold(), r["id"]))
+
+
+def reconcile_bandcamp_references(observations, existing, corrections=()):
+    """Reject cross-artist community links; split only fully refreshed false aliases."""
+    fresh = [prepare(row) for row in observations]
+    views = [apply_corrections(prepare(row), corrections) for row in fresh]
+    by_id, bandcamp = {}, {}
+    for raw, row in zip(fresh, views):
+        for source_id in row["source_ids"]:
+            by_id.setdefault(source_id, []).append(row)
+        if any(re.fullmatch(r"bandcamp:[1-9]\d*", value) for value in row["source_ids"]):
+            for value in row["source_ids"]:
+                if value.startswith("bandcamp-url:"):
+                    bandcamp[value] = (raw, row)
+    mismatches = []
+    for raw, row in zip(fresh, views):
+        artist_alias = any("canonical_artist" in correction and matches(row, correction) for correction in corrections)
+        if artist_alias or any(re.fullmatch(r"bandcamp:[1-9]\d*", v) for v in row["source_ids"]):
+            continue
+        for source_id in list(row["source_ids"]):
+            pair = bandcamp.get(source_id)
+            if pair and normalized(row["artist"]) != normalized(pair[1]["artist"]):
+                primary_raw, primary = pair
+                other_ids = set(row["source_ids"]) - {source_id}
+                mismatches.append((source_id, other_ids, primary_raw, primary))
+                url = source_id.removeprefix("bandcamp-url:")
+                for target in (raw, row):
+                    target["source_ids"].remove(source_id)
+                    target["source_urls"] = [value for value in target["source_urls"] if value != url]
+                    target["notes"] += "\nIgnored a Bandcamp link to a different artist: " + url
+    retained = []
+    for original in existing:
+        old = apply_corrections(prepare(original), corrections)
+        old_ids = set(old["source_ids"])
+        for source_id, other_ids, primary_raw, primary in mismatches:
+            if (source_id not in old_ids or not old_ids.intersection(other_ids) or
+                    normalized(old["artist"]) != normalized(primary["artist"]) or
+                    not all(value in by_id for value in old_ids)):
+                continue
+            claims = [row for value in old_ids for row in by_id[value]]
+            dates = {value for row in claims for value in row["date_candidates"]}
+            styles = {normalized(value) for row in claims for value in row["styles"]}
+            urls = {value for row in claims for value in row["source_urls"]}
+            if (not set(old["date_candidates"]).issubset(dates) or
+                    not {normalized(v) for v in old["styles"]}.issubset(styles) or
+                    not set(old["source_urls"]).issubset(urls)):
+                continue
+            replacement = dict(primary_raw, id=old["id"])
+            notes = [line for line in old["notes"].splitlines() if not line.startswith(("Date conflict: ", "Other dates: "))]
+            replacement["notes"] = "\n".join(notes + [primary_raw["notes"], "Previously combined with a different artist through a community Bandcamp link."])
+            retained.append(replacement)
+            break
+        else:
+            retained.append(original)
+    return fresh, retained
 
 
 class BandcampPage(HTMLParser):
@@ -821,6 +917,11 @@ class HTTPClient:
 
 def collect_sources(config, years, client, seeds, existing=()):
     rows, errors = list(seeds), []
+    if config.get("postrocknation", False):
+        from postrocknation import collect_postrocknation
+        batch, warnings = collect_postrocknation(client, years, existing)
+        rows.extend(batch)
+        errors.extend(warnings)
     if config.get("sputnikmusic", False):
         from sputnik import collect_sputnik
         batch, warnings = collect_sputnik(client, years, existing)
@@ -974,7 +1075,7 @@ def md_text(value):
 def source_link(url):
     checked_url(url)
     host = urlsplit(url).hostname
-    name = "Bandcamp" if host.endswith(".bandcamp.com") else "MusicBrainz" if host == "musicbrainz.org" else "Discogs" if host.endswith("discogs.com") else "AOTY" if host.endswith("albumoftheyear.org") else "Reddit" if host.endswith("reddit.com") else "Sputnikmusic" if host == "www.sputnikmusic.com" else host
+    name = "Bandcamp" if host.endswith(".bandcamp.com") else "MusicBrainz" if host == "musicbrainz.org" else "Discogs" if host.endswith("discogs.com") else "AOTY" if host.endswith("albumoftheyear.org") else "Reddit" if host.endswith("reddit.com") else "Sputnikmusic" if host == "www.sputnikmusic.com" else "Post-Rock Nation" if host == "postrocknation.com" or host.endswith(".postrocknation.com") else host
     return f"[{md_text(name)}]({quote(url, safe=':/?=&%#@+~.-_')})"
 
 
@@ -1084,6 +1185,7 @@ def main(argv=None):
             client = HTTPClient(args.cache_dir, args.offline, args.refresh)
             observations, errors = collect_sources(config, set(args.year), client, seeds, existing)
             errors += client.errors
+        observations, existing = reconcile_bandcamp_references(observations, existing, corrections)
         rows = merge_catalog(list(observations) + excluded, existing, corrections)
         errors += enrich_cached_discogs_styles(rows, args.cache_dir)
         if not rows and errors and not existing and not observations:
