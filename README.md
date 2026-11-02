@@ -34,6 +34,16 @@ The first online run takes longer because it reads individual Discogs records an
 
 If a source fails, existing albums remain, successful sources can still update the files, and the command exits **1** with warnings. A clean update exits **0**. Malformed local input or a missing corrections file aborts before outputs are written. Source-reported exclusions persist in script-owned `releases/post-rock/excluded.json`, so an EP cannot return from an old seed when Reddit later fails. Individual output files are replaced atomically. Run one updater at a time.
 
+## Daily automatic updates
+
+The [GitHub Actions workflow](.github/workflows/update-releases.yml) runs daily at **07:17 Europe/Warsaw**, including daylight-saving changes. It updates the current and previous years (2025 and 2026 during 2026), then commits changed CSV, Markdown and exclusion state directly to `main` as `github-actions[bot]`. Unchanged files produce no commit. The repository's built-in `GITHUB_TOKEN` supplies write access; no personal token or local computer is required. You can also start it with **Actions → Update album releases → Run workflow** on `main`.
+
+The runner installs Python, Playwright and Chrome, runs the tests, and reuses only public HTTP/wiki response caches. Browser profiles and login sessions are never uploaded. Source warnings appear in the job summary; successful partial updates are still published with previous data retained for unavailable sources. Fatal updater errors stop publication. Simultaneous updates are serialized, and pushes retry after rebasing without force-pushing. The first uncached run can take considerably longer because source rate limits are respected.
+
+All configured sources are attempted without required secrets. Optional repository Actions secrets `DISCOGS_TOKEN`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET` and `REDDIT_ACCESS_TOKEN` are passed only to the updater if provided. Reddit can still deny access from GitHub-hosted runners; this produces a source warning and preserves existing Reddit observations rather than waiting for a person.
+
+GitHub can delay scheduled jobs and disables public-repository schedules after 60 days without repository activity. Regular catalog commits keep the repository active; after an unusually long unchanged period the schedule may need re-enabling. See [GitHub's scheduling documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+
 ## Sources and coverage
 
 1. **Discogs:** all release-search pages for the requested years, with exact local `Post Rock` style and `Album` checks. Editions with a nonzero master ID are grouped; **masterless releases are included** and their detail-level master association is rechecked. A master's original year must match the requested year. Masterless records explicitly marked Reissue, Repress, Remastered, EP, Single, Compilation or Unofficial Release are skipped, as are explicitly identified live/demo/remix titles and Various-artist compilations. Reissue is an edition flag: it never excludes a whole valid master. Enabled by `"discogs": true` in [`sources.json`](sources.json).
