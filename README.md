@@ -2,6 +2,8 @@
 
 A personal post-rock album calendar: **one album per row**, a script-owned CSV for each year, and Markdown rendered from that CSV.
 
+Calendar tables use HTML cells with wrapping disabled so each album occupies one visual line on GitHub. Scroll horizontally to read all columns and full tag lists; no tags are shortened or hidden.
+
 The `styles` column includes all available Discogs styles, MusicBrainz tags, Bandcamp tags, Post-Rock Nation artist tags and Sputnikmusic artist genre tags (including all voted tags, not only the displayed top three). Tags from matching albums and editions are combined, sorted and deduplicated across case/spacing/hyphen variations. Already-cached Discogs metadata also supplies tags for saved albums that no longer match discovery filters. Source labels are preserved; Bandcamp's free-form tags can also be descriptive or geographic. Missing tags remain `[]` in CSV and `—` in Markdown. Earlier CSV files without this column are read and upgraded automatically on the next update.
 
 The separate `lastfm_artist_tags` column contains **only the artist/band's Last.fm tags**. With `LASTFM_API_KEY` configured, the updater uses Last.fm's official `artist.getTopTags` API; otherwise it can read public artist tag pages using headless Chrome. These are not album tags and are never mixed into `styles`. No Last.fm user login is needed. Earlier CSV schemas are upgraded automatically.

@@ -91,12 +91,15 @@ class StyleTests(unittest.TestCase):
 
     def test_markdown_has_escaped_styles_column_and_unknown_placeholder(self):
         m = updater()
-        rows = m.merge_catalog([observation(styles=["Ambient | Drone", "Post Rock"])])
+        rows = m.merge_catalog([observation(styles=["Ambient | Drone", "Post Rock", "<experimental>"])])
         markdown = m.render_markdown(2026, rows)
-        self.assertIn("| Date | Artist | Album | Styles | Last.fm artist tags | Date status | Sources | Notes |", markdown)
-        self.assertIn("Ambient \\| Drone, Post Rock", markdown)
+        self.assertIn("<th nowrap>Styles</th><th nowrap>Last.fm artist tags</th>", markdown)
+        self.assertIn("&lt;experimental&gt;, Ambient | Drone, Post Rock", markdown)
+        album_lines = [line for line in markdown.splitlines() if line.startswith("<tr>")]
+        self.assertEqual(len(album_lines), 1)
+        self.assertEqual(album_lines[0].count("<td nowrap>"), 8)
         unknown = m.render_markdown(2026, m.merge_catalog([observation()]))
-        self.assertIn("| — |", unknown)
+        self.assertIn("<td nowrap>—</td>", unknown)
 
     def test_legacy_csv_is_read_and_migrated_without_losing_saved_album(self):
         m = updater()

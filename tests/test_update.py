@@ -334,14 +334,14 @@ class CatalogTests(unittest.TestCase):
         m = updater()
         rows = m.merge_catalog([observation(
             "A | B", "<Unusual>", date="2026-10",
-            source_urls=["https://example.bandcamp.com/album/a(b)"],
+            source_urls=["https://example.bandcamp.com/album/a(b)?a=1&b=2"],
         )])
         md = m.render_markdown(2026, rows)
-        self.assertIn("A \\| B", md)
+        self.assertIn("<td nowrap>A | B</td>", md)
         self.assertIn("&lt;Unusual&gt;", md)
         self.assertIn("2026-10", md)
         self.assertNotIn("2026-10-01", md)
-        self.assertIn("https://example.bandcamp.com/album/a%28b%29", md)
+        self.assertIn('<a href="https://example.bandcamp.com/album/a%28b%29?a=1&amp;b=2">Bandcamp</a>', md)
 
 
 def wiki_payload(table_rows, year=2026):

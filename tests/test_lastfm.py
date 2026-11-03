@@ -41,10 +41,10 @@ class LastfmTests(unittest.TestCase):
 
     def test_markdown_has_separate_escaped_lastfm_column(self):
         m = updater()
-        rows = m.merge_catalog([observation(styles=['Post Rock'], lastfm_artist_tags=['ambient | drone'])])
+        rows = m.merge_catalog([observation(styles=['Post Rock'], lastfm_artist_tags=['ambient | drone & noise'])])
         document = m.render_markdown(2026, rows)
-        self.assertIn('| Styles | Last.fm artist tags |', document)
-        self.assertIn('Post Rock | ambient \\| drone |', document)
+        self.assertIn('<th nowrap>Styles</th><th nowrap>Last.fm artist tags</th>', document)
+        self.assertIn('<td nowrap>Post Rock</td><td nowrap>ambient | drone &amp; noise</td>', document)
 
     def test_csv_migrates_the_current_schema_without_losing_album_facts(self):
         m = updater()

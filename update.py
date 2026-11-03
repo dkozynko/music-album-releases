@@ -1078,21 +1078,23 @@ def retained_exclusions(existing, observations):
     return [records[key] for key in sorted(records)]
 
 
-def md_text(value):
-    return html.escape(str(value), quote=False).replace("|", "\\|").replace("\r", " ").replace("\n", " ")
+def table_text(value):
+    return html.escape(str(value), quote=False).replace("\r", " ").replace("\n", " ")
 
 
 def source_link(url):
     checked_url(url)
     host = urlsplit(url).hostname
     name = "Bandcamp" if host.endswith(".bandcamp.com") else "MusicBrainz" if host == "musicbrainz.org" else "Discogs" if host.endswith("discogs.com") else "AOTY" if host.endswith("albumoftheyear.org") else "Reddit" if host.endswith("reddit.com") else "Sputnikmusic" if host == "www.sputnikmusic.com" else "Post-Rock Nation" if host == "postrocknation.com" or host.endswith(".postrocknation.com") else host
-    return f"[{md_text(name)}]({quote(url, safe=':/?=&%#@+~.-_')})"
+    href = html.escape(quote(url, safe=':/?=&%#@+~.-_'), quote=True)
+    return f'<a href="{href}">{table_text(name)}</a>'
 
 
 def render_markdown(year, rows):
     rows = [r for r in rows if int(r["year"]) == year]
     lines = [f"# Post-rock albums — {year}", "", f"{len(rows)} albums. [Download CSV]({year}.csv).", "",
              "Generated from the CSV. An evolving catalog, not an exhaustive census.", "",
+             "Each album stays on one line; scroll tables horizontally to see all columns and tags.", "",
              "Artist tags are supplied by [Last.fm](https://www.last.fm) and describe the artist, not the album.", "",
              "Dates stay partial when the day/month is unknown. Future dates are announced releases and may change.", "",
              "Date status: **primary** = artist/label page; **reported** = catalog; **corrected** = sourced manual correction; **conflict** = sources disagree.", ""]
@@ -1102,16 +1104,19 @@ def render_markdown(year, rows):
         month = int(value[5:7]) if len(value) >= 7 else 0
         buckets.setdefault(month, []).append(row)
     for month in sorted(buckets, key=lambda m: m or 13):
+        headings = ["Date", "Artist", "Album", "Styles", "Last.fm artist tags", "Date status", "Sources", "Notes"]
+        # GitHub preserves the nowrap cell attribute but strips inline styles.
         lines += ["## " + (calendar.month_name[month] if month else "Month unknown / needs review"), "",
-                  "| Date | Artist | Album | Styles | Last.fm artist tags | Date status | Sources | Notes |",
-                  "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+                  "<table>", "<thead><tr>" + "".join(f"<th nowrap>{heading}</th>" for heading in headings) + "</tr></thead>",
+                  "<tbody>"]
         for row in sorted(buckets[month], key=lambda r: (r["release_date"], r["artist"].casefold(), r["album"].casefold())):
             cells = [row["release_date"] or "Unresolved", row["artist"], row["album"],
                      ", ".join(style_list(row.get("styles", []))) or "—",
                      ", ".join(lastfm_tag_list(row.get("lastfm_artist_tags", []))) or "—", row["date_status"]]
             links = " ".join(source_link(u) for u in string_list(row["source_urls"]))
-            lines.append("| " + " | ".join([*(md_text(v) for v in cells), links, md_text(row["notes"])]) + " |")
-        lines.append("")
+            values = [*(table_text(v) for v in cells), links, table_text(row["notes"])]
+            lines.append("<tr>" + "".join(f"<td nowrap>{value}</td>" for value in values) + "</tr>")
+        lines += ["</tbody>", "</table>", ""]
     return "\n".join(lines).rstrip() + "\n"
 
 
