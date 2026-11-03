@@ -93,7 +93,7 @@ class StyleTests(unittest.TestCase):
         m = updater()
         rows = m.merge_catalog([observation(styles=["Ambient | Drone", "Post Rock"])])
         markdown = m.render_markdown(2026, rows)
-        self.assertIn("| Date | Artist | Album | Styles | Date status | Sources | Notes |", markdown)
+        self.assertIn("| Date | Artist | Album | Styles | Last.fm artist tags | Date status | Sources | Notes |", markdown)
         self.assertIn("Ambient \\| Drone, Post Rock", markdown)
         unknown = m.render_markdown(2026, m.merge_catalog([observation()]))
         self.assertIn("| — |", unknown)

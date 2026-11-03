@@ -4,6 +4,8 @@ A personal post-rock album calendar: **one album per row**, a script-owned CSV f
 
 The `styles` column includes all available Discogs styles, MusicBrainz tags, Bandcamp tags, Post-Rock Nation artist tags and Sputnikmusic artist genre tags (including all voted tags, not only the displayed top three). Tags from matching albums and editions are combined, sorted and deduplicated across case/spacing/hyphen variations. Already-cached Discogs metadata also supplies tags for saved albums that no longer match discovery filters. Source labels are preserved; Bandcamp's free-form tags can also be descriptive or geographic. Missing tags remain `[]` in CSV and `—` in Markdown. Earlier CSV files without this column are read and upgraded automatically on the next update.
 
+The separate `lastfm_artist_tags` column contains **only the artist/band's Last.fm tags**, scraped from its public artist tag pages using headless Chrome. These are not album tags and are never mixed into `styles`. No Last.fm login, API or API key is used. Earlier CSV schemas are upgraded automatically.
+
 - [2026 calendar](releases/post-rock/2026.md) · [CSV](releases/post-rock/2026.csv)
 - [2025 calendar](releases/post-rock/2025.md) · [CSV](releases/post-rock/2025.csv)
 
@@ -27,6 +29,7 @@ Without `--year`, the updater uses the current year. Run it again to discover re
 python3 update.py --year 2026 --offline       # Cached source responses only
 python3 update.py --year 2026 --refresh       # Refresh source caches now
 python3 update.py --year 2026 --render-only   # Markdown from CSV; no network or CSV edits
+.venv/bin/python update.py --year 2025 2026 --lastfm-only  # Refresh only saved artists' Last.fm tags
 python3 -m unittest discover -s tests -v
 ```
 
@@ -55,6 +58,14 @@ GitHub can delay scheduled jobs and disables public-repository schedules after 6
 7. **Starting observations:** [`seeds.json`](seeds.json) preserves earlier bibliographic research and its source links. It is not the Reddit, Discogs, Sputnikmusic or Post-Rock Nation import mechanism. New releases from those sources require no edits to this file. AOTY seed links are not automatically crawled.
 
 This is a growing personal selection, **not a complete genre census**. MusicBrainz tagging is incomplete; Bandcamp coverage depends on the configured catalogs and the albums exposed by their public pages. Reddit mixes albums and shorter releases and may omit type annotations. The updater reports source failures; a failed wiki refresh is never counted as successful coverage.
+
+### Last.fm artist tags
+
+`"lastfm_artist_tags": true` in [`sources.json`](sources.json) enables artist-tag enrichment after albums are merged. The scraper opens each band's public `/music/<artist>/+tags` page in the same headless Chrome implementation used for Reddit, with a separate temporary profile. It reads only the artist's global tag list and follows same-artist next-page links. Artist punctuation is preserved, and URLs are encoded; it does not guess tags from albums, related artists, descriptions or other release sources.
+
+Complete results are cached per artist for 24 hours in ignored `.cache/http/lastfm-artists/` and shared across that artist's albums. The daily GitHub Actions job already installs Chrome/Playwright and saves this public cache, so no additional setup or secret is required. Use `--lastfm-only` for a focused refresh without rescanning release catalogs, or select the `lastfm_only` checkbox in GitHub's **Run workflow** form. `--offline` uses only parsed cache, and `--refresh` ignores its age. `--render-only` never opens a browser. This source needs the optional browser dependencies described under Reddit access.
+
+A successful refresh replaces the saved Last.fm tag list, including an explicitly empty list. Inaccessible pages, service errors, changed markup and incomplete pagination preserve previous tags and produce source warnings. After three service/challenge failures the scraper stops the batch and retries on the next run. If Last.fm has not yet supplied tags, the column remains `[]` / `—`; it is not filled from `styles`. Only parsed artist names, public URLs and tags are cached, never HTML, cookies or browser profiles. Last.fm can combine different bands with the same name on one artist page; those are the site's shared artist tags.
 
 ### Post-Rock Nation archive
 

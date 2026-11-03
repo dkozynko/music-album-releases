@@ -25,13 +25,16 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urljoin, urlsplit, urlunsplit, quote
 from urllib.request import Request, urlopen
 
+from lastfm import artist_key as lastfm_artist_key, tag_list as lastfm_tag_list
+
 
 ROOT = Path(__file__).resolve().parent
 USER_AGENT = "music-album-releases/0.1 (https://github.com/dkozynko/music-album-releases)"
-FIELDS = ["id", "year", "artist", "album", "styles", "release_date", "date_status",
+FIELDS = ["id", "year", "artist", "album", "styles", "lastfm_artist_tags", "release_date", "date_status",
           "release_type", "date_candidates", "source_ids", "source_urls", "notes"]
-LEGACY_FIELDS = [field for field in FIELDS if field != "styles"]
-LIST_FIELDS = {"styles", "date_candidates", "source_ids", "source_urls"}
+PREVIOUS_FIELDS = [field for field in FIELDS if field != "lastfm_artist_tags"]
+LEGACY_FIELDS = [field for field in PREVIOUS_FIELDS if field != "styles"]
+LIST_FIELDS = {"styles", "lastfm_artist_tags", "date_candidates", "source_ids", "source_urls"}
 STATUSES = {"unknown", "reported", "primary", "corrected", "conflict"}
 NON_ALBUMS = {"ep", "single", "live", "compilation", "remix", "demo", "reissue", "excluded"}
 
@@ -118,6 +121,7 @@ def prepare(record):
     if row["release_type"] not in NON_ALBUMS | {"album"}:
         raise ValueError(f"Unknown release type: {row['release_type']}")
     row["styles"] = style_list(string_list(row.get("styles", [])) + string_list(row.get("tags", [])))
+    row["lastfm_artist_tags"] = lastfm_tag_list(row.get("lastfm_artist_tags", []))
     row["source_ids"] = sorted({v for v in string_list(row.get("source_ids", []))
                                 if v.partition(":")[2] and v.partition(":")[2] not in {"0", "null", "None"}})
     row["source_urls"] = sorted({checked_url(v) for v in string_list(row.get("source_urls", []))})
@@ -161,7 +165,10 @@ def apply_corrections(row, corrections):
     for correction in corrections:
         if not matches(row, correction):
             continue
-        row["artist"] = correction.get("canonical_artist", row["artist"])
+        artist = correction.get("canonical_artist", row["artist"])
+        if lastfm_artist_key(artist) != lastfm_artist_key(row["artist"]):
+            row["lastfm_artist_tags"] = []
+        row["artist"] = artist
         row["album"] = correction.get("canonical_album", row["album"])
         if "canonical_artist" in correction or "canonical_album" in correction:
             row["_canonical_corrected"] = True
@@ -291,6 +298,9 @@ def merge_catalog(observations, existing=(), corrections=()):
             "id": identifier, "year": int(value[:4]) if value else preferred["year"],
             "artist": preferred["artist"], "album": preferred["album"],
             "styles": style_list([v for r in group for v in r["styles"]]),
+            "lastfm_artist_tags": lastfm_tag_list([v for r in group
+                if lastfm_artist_key(r["artist"]) == lastfm_artist_key(preferred["artist"])
+                for v in r["lastfm_artist_tags"]]),
             "release_date": value, "date_status": status, "release_type": "album",
             "date_candidates": candidates,
             "source_ids": sorted({v for r in group for v in r["source_ids"]}),
@@ -1024,7 +1034,7 @@ def read_catalog(output_dir):
     for path in sorted(output_dir.glob("[0-9][0-9][0-9][0-9].csv")):
         with path.open(encoding="utf-8", newline="") as stream:
             reader = csv.DictReader(stream)
-            if reader.fieldnames not in (FIELDS, LEGACY_FIELDS):
+            if reader.fieldnames not in (FIELDS, PREVIOUS_FIELDS, LEGACY_FIELDS):
                 raise ValueError(f"Unexpected CSV columns in {path}; use --input to import other formats")
             rows.extend(prepare(r) for r in reader)
     return rows
@@ -1064,7 +1074,7 @@ def retained_exclusions(existing, observations):
         if row["release_type"] not in NON_ALBUMS:
             continue
         key = (album_key(row["artist"], row["album"]), row["release_type"], tuple(row["source_ids"]))
-        records[key] = {field: row[field] for field in FIELDS if field != "id"}
+        records[key] = {field: row[field] for field in FIELDS if field not in {"id", "lastfm_artist_tags"}}
     return [records[key] for key in sorted(records)]
 
 
@@ -1092,11 +1102,12 @@ def render_markdown(year, rows):
         buckets.setdefault(month, []).append(row)
     for month in sorted(buckets, key=lambda m: m or 13):
         lines += ["## " + (calendar.month_name[month] if month else "Month unknown / needs review"), "",
-                  "| Date | Artist | Album | Styles | Date status | Sources | Notes |",
-                  "| --- | --- | --- | --- | --- | --- | --- |"]
+                  "| Date | Artist | Album | Styles | Last.fm artist tags | Date status | Sources | Notes |",
+                  "| --- | --- | --- | --- | --- | --- | --- | --- |"]
         for row in sorted(buckets[month], key=lambda r: (r["release_date"], r["artist"].casefold(), r["album"].casefold())):
             cells = [row["release_date"] or "Unresolved", row["artist"], row["album"],
-                     ", ".join(style_list(row.get("styles", []))) or "—", row["date_status"]]
+                     ", ".join(style_list(row.get("styles", []))) or "—",
+                     ", ".join(lastfm_tag_list(row.get("lastfm_artist_tags", []))) or "—", row["date_status"]]
             links = " ".join(source_link(u) for u in string_list(row["source_urls"]))
             lines.append("| " + " | ".join([*(md_text(v) for v in cells), links, md_text(row["notes"])]) + " |")
         lines.append("")
@@ -1140,6 +1151,7 @@ def main(argv=None):
     parser.add_argument("--offline", action="store_true", help="Use cached source data only; no browser or network")
     parser.add_argument("--refresh", action="store_true", help="Ignore the 24-hour source cache lifetime")
     parser.add_argument("--render-only", action="store_true", help="Regenerate Markdown from existing CSV without changing CSV")
+    parser.add_argument("--lastfm-only", action="store_true", help="Refresh Last.fm artist tags on saved albums without fetching release sources")
     parser.add_argument("--reddit-browser", action="store_true", help="Read Reddit wiki with headless Chrome instead of the API")
     parser.add_argument("--reddit-login", action="store_true", help="Open dedicated visible Chrome for sign-in and cache the wiki; do not edit catalogs")
     parser.add_argument("--reddit-timeout", type=int, help="Seconds per browser wiki (default 45; session setup 300)")
@@ -1147,6 +1159,8 @@ def main(argv=None):
     try:
         for year in args.year:
             date(year, 1, 1)
+        if args.lastfm_only and (args.input or args.render_only or args.reddit_login):
+            raise ValueError("--lastfm-only cannot be combined with --input, --render-only or --reddit-login")
         if args.reddit_timeout is not None and not 1 <= args.reddit_timeout <= 600:
             raise ValueError("--reddit-timeout must be between 1 and 600 seconds")
         if args.reddit_login:
@@ -1161,6 +1175,13 @@ def main(argv=None):
                 print("Reddit browser session and public wiki cache are ready; run --reddit-browser to update catalogs.")
             return 1 if errors else 0
         existing = read_catalog(args.output_dir)
+        if args.lastfm_only:
+            from lastfm import enrich
+            errors = enrich(existing, set(args.year), args.cache_dir, args.offline, args.refresh)
+            write_catalog(args.output_dir, existing, args.year)
+            for error in errors:
+                print("Warning: " + error, file=sys.stderr)
+            return 1 if errors else 0
         if args.render_only:
             for year in args.year:
                 if not (args.output_dir / f"{year:04d}.csv").exists():
@@ -1188,6 +1209,9 @@ def main(argv=None):
         observations, existing = reconcile_bandcamp_references(observations, existing, corrections)
         rows = merge_catalog(list(observations) + excluded, existing, corrections)
         errors += enrich_cached_discogs_styles(rows, args.cache_dir)
+        if not args.input and config.get("lastfm_artist_tags", False):
+            from lastfm import enrich
+            errors += enrich(rows, set(args.year), args.cache_dir, args.offline, args.refresh)
         if not rows and errors and not existing and not observations:
             raise ValueError("All sources failed and there is no existing catalog to preserve")
         excluded = retained_exclusions(excluded, observations)

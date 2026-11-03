@@ -5,6 +5,11 @@ on:
     - cron: '17 7 * * *'
       timezone: Europe/Warsaw
   workflow_dispatch:
+    inputs:
+      lastfm_only:
+        description: Refresh Last.fm artist tags only
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -51,6 +56,7 @@ jobs:
         id: update
         timeout-minutes: 210
         env:
+          LASTFM_ONLY: ${{ inputs.lastfm_only || false }}
           DISCOGS_TOKEN: ${{ secrets.DISCOGS_TOKEN }}
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
@@ -59,8 +65,12 @@ jobs:
         run: |
           release_year="$(date +%Y)"
           update_log="$RUNNER_TEMP/release-update.log"
+          update_args=(--year "$((release_year - 1))" "$release_year")
+          if [[ "$LASTFM_ONLY" == 'true' ]]; then
+            update_args+=(--lastfm-only)
+          fi
           set +e
-          python -u update.py --year "$((release_year - 1))" "$release_year" 2>&1 | tee "$update_log"
+          python -u update.py "${update_args[@]}" 2>&1 | tee "$update_log"
           command_status=("${PIPESTATUS[@]}")
           set -e
           if (( command_status[1] != 0 )); then

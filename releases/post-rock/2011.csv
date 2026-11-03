@@ -1,2 +1,2 @@
-id,year,artist,album,styles,release_date,date_status,release_type,date_candidates,source_ids,source_urls,notes
-pr_fb5d9e5b98569c24,2011,Our Last Hope Lost Hope,Persist,"[""Post Rock""]",2011-11-29,corrected,album,"[""2011-11-29"",""2026-10""]","[""discogs-release:38687442""]","[""https://ourlasthopelosthope.bandcamp.com/album/persist"",""https://www.discogs.com/release/38687442""]",Other dates: 2011-11-29 / 2026-10
+id,year,artist,album,styles,lastfm_artist_tags,release_date,date_status,release_type,date_candidates,source_ids,source_urls,notes
+pr_fb5d9e5b98569c24,2011,Our Last Hope Lost Hope,Persist,"[""Post Rock""]",[],2011-11-29,corrected,album,"[""2011-11-29"",""2026-10""]","[""discogs-release:38687442""]","[""https://ourlasthopelosthope.bandcamp.com/album/persist"",""https://www.discogs.com/release/38687442""]",Other dates: 2011-11-29 / 2026-10
