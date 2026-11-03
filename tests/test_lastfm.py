@@ -223,12 +223,103 @@ class LastfmTests(unittest.TestCase):
             root = Path(directory)
             for row in rows: lastfm.save_cache(root, row['artist'], row['lastfm_artist_tags'])
             saved = {p.name:p.read_bytes() for p in root.rglob('*.json')}
-            with patch('reddit_browser.RedditBrowser', DeniedBrowser), patch('lastfm.time.sleep'):
+            progress = io.StringIO()
+            with patch('reddit_browser.RedditBrowser', DeniedBrowser), patch('lastfm.time.sleep'), contextlib.redirect_stderr(progress):
                 errors = lastfm.enrich(rows, {2026}, root, refresh=True)
             self.assertEqual(len(requests), 3)
             self.assertTrue(any('stopped after 3' in error for error in errors))
             self.assertTrue(all(row['lastfm_artist_tags'] == ['saved-tag'] for row in rows))
             self.assertEqual({p.name:p.read_bytes() for p in root.rglob('*.json')}, saved)
+            self.assertIn('HTTP 403', progress.getvalue())
+            self.assertIn('Client Challenge', progress.getvalue())
+
+    @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
+    def test_http_200_service_error_reports_its_body_status(self):
+        import lastfm
+        from reddit_browser import RedditBrowser
+        with tempfile.TemporaryDirectory() as directory, RedditBrowser(directory) as browser:
+            browser.context.route('https://www.last.fm/**', lambda route: route.fulfill(content_type='text/html',
+                body='<title>Last.fm - Temporarily Unavailable</title><h1>Temporarily unavailable</h1><div>Error 503</div>'))
+            with self.assertRaisesRegex(lastfm.Unavailable, r'service error 503.*HTTP 200'):
+                lastfm.read_artist(browser.page, 'Example Act', timeout=0.15)
+
+    @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
+    def test_unavailable_page_without_error_number_does_not_invent_service_error_200(self):
+        import lastfm
+        from reddit_browser import RedditBrowser
+        with tempfile.TemporaryDirectory() as directory, RedditBrowser(directory) as browser:
+            browser.context.route('https://www.last.fm/**', lambda route: route.fulfill(content_type='text/html',
+                body='<title>Last.fm - Temporarily Unavailable</title><h1>Temporarily unavailable</h1>'))
+            with self.assertRaisesRegex(lastfm.Unavailable, r'service error unknown.*HTTP 200'):
+                lastfm.read_artist(browser.page, 'Example Act', timeout=0.15)
+
+    @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
+    def test_challenge_timeout_reports_http_status_and_page_title(self):
+        import lastfm
+        from reddit_browser import RedditBrowser
+        with tempfile.TemporaryDirectory() as directory, RedditBrowser(directory) as browser:
+            browser.context.route('https://www.last.fm/**', lambda route: route.fulfill(content_type='text/html',
+                body='<title>Client Challenge</title><h1>JavaScript required</h1>'))
+            with self.assertRaisesRegex(lastfm.Unavailable, r'access challenge.*HTTP 200.*Client Challenge'):
+                lastfm.read_artist(browser.page, 'Example Act', timeout=0.15)
+
+    @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
+    def test_missing_tag_markup_on_an_artist_page_is_not_a_global_service_failure(self):
+        import lastfm
+        from reddit_browser import RedditBrowser
+        with tempfile.TemporaryDirectory() as directory, RedditBrowser(directory) as browser:
+            browser.context.route('https://www.last.fm/**', lambda route: route.fulfill(content_type='text/html',
+                body=tags_page(tags=())))
+            with self.assertRaises(ValueError) as caught:
+                lastfm.read_artist(browser.page, 'Example Act', timeout=0.15)
+            self.assertNotIsInstance(caught.exception, lastfm.Unavailable)
+            self.assertIn('HTTP 200', str(caught.exception))
+
+    @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
+    def test_three_artist_markup_failures_do_not_skip_a_following_healthy_artist(self):
+        import lastfm
+        from reddit_browser import RedditBrowser
+        from urllib.parse import unquote_plus
+        class ArtistPagesBrowser(RedditBrowser):
+            def __enter__(self):
+                super().__enter__()
+                def handle(route):
+                    artist = unquote_plus(route.request.url.split('/music/')[1].split('/')[0])
+                    tags = ('post-rock',) if artist == 'Act 3' else ()
+                    route.fulfill(content_type='text/html', body=tags_page(artist, tags=tags))
+                self.context.route('https://www.last.fm/**', handle)
+                return self
+        rows = [{'artist':f'Act {i}','year':2026,'lastfm_artist_tags':[]} for i in range(4)]
+        read_artist = lastfm.read_artist
+        with tempfile.TemporaryDirectory() as directory:
+            with patch('reddit_browser.RedditBrowser', ArtistPagesBrowser), patch('lastfm.time.sleep'), \
+                 patch('lastfm.read_artist', side_effect=lambda page, artist: read_artist(page, artist, timeout=0.15)):
+                errors = lastfm.enrich(rows, {2026}, Path(directory))
+            self.assertEqual(rows[3]['lastfm_artist_tags'], ['post-rock'])
+            self.assertEqual(len(errors), 3)
+            self.assertFalse(any('stopped after 3' in error for error in errors))
+
+    @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
+    def test_artist_specific_404_interrupts_the_consecutive_service_failure_count(self):
+        import lastfm
+        from reddit_browser import RedditBrowser
+        from urllib.parse import unquote_plus
+        class IntermittentBrowser(RedditBrowser):
+            def __enter__(self):
+                super().__enter__()
+                def handle(route):
+                    artist = unquote_plus(route.request.url.split('/music/')[1].split('/')[0])
+                    index = int(artist.rsplit(' ', 1)[1])
+                    status = 200 if index == 5 else 404 if index % 2 else 503
+                    route.fulfill(status=status, content_type='text/html', body=tags_page(artist, ('post-rock',)))
+                self.context.route('https://www.last.fm/**', handle)
+                return self
+        rows = [{'artist':f'Act {i}','year':2026,'lastfm_artist_tags':[]} for i in range(6)]
+        with tempfile.TemporaryDirectory() as directory:
+            with patch('reddit_browser.RedditBrowser', IntermittentBrowser), patch('lastfm.time.sleep'):
+                errors = lastfm.enrich(rows, {2026}, Path(directory))
+            self.assertEqual(rows[5]['lastfm_artist_tags'], ['post-rock'])
+            self.assertFalse(any('stopped after 3' in error for error in errors))
 
 
 if __name__ == '__main__':

@@ -63,6 +63,7 @@ class TagPage(HTMLParser):
     def __init__(self, document):
         super().__init__(convert_charrefs=True)
         self.stack, self.tags, self.text, self.next = [], [], [], []
+        self.title, self.headings = [], []
         self.canonical = ''
         self.anchor = None
         self.hidden = 0
@@ -91,6 +92,10 @@ class TagPage(HTMLParser):
     def handle_data(self, value):
         if not self.hidden and value.strip():
             self.text.append(value.strip())
+            if any(name == 'title' for name, _ in self.stack):
+                self.title.append(value.strip())
+            if any(name == 'h1' for name, _ in self.stack):
+                self.headings.append(value.strip())
             if self.anchor is not None:
                 self.anchor.append(value)
 
@@ -105,10 +110,32 @@ class TagPage(HTMLParser):
             self.stack = self.stack[:positions[-1]]
 
 
+def page_details(page, status):
+    title = ' '.join(page.title)[:160] or '(missing)'
+    return f'HTTP {status if status is not None else "unknown"}; title={json.dumps(title, ensure_ascii=False)}'
+
+
+def blocking_error(page, status=None, include_challenge=True):
+    title = ' '.join(page.title)
+    details = page_details(page, status)
+    if include_challenge and re.fullmatch(r'Client Challenge|Just a moment\.*|Prove your humanity|Access Denied', title, re.I):
+        return Unavailable(f'Last.fm access challenge ({details})')
+    if status in {403, 429}:
+        reason = 'access denied' if status == 403 else 'rate limited'
+        return Unavailable(f'Last.fm {reason} ({details})')
+    error = re.search(r'\bError\s+(5\d\d)\b', ' '.join(page.text), re.I) if not page.canonical else None
+    unavailable = not page.canonical and re.search(r'temporarily unavailable', title + ' '.join(page.headings), re.I)
+    if error or unavailable or status is not None and status >= 500:
+        code = error[1] if error else str(status) if status is not None and status >= 500 else 'unknown'
+        return Unavailable(f'Last.fm service error {code} ({details})')
+    return None
+
+
 def parse_tags(document, artist, page_number):
-    if re.search(r'<title[^>]*>[^<]*(?:Client Challenge|Just a moment|Temporarily Unavailable)', document, re.I):
-        raise Unavailable('Last.fm exposed a challenge or service error')
     page = TagPage(document)
+    error = blocking_error(page)
+    if error:
+        raise error
     if not page.canonical:
         raise ValueError('Last.fm artist-page identity is missing')
     checked_artist_url(page.canonical, artist, allow_root=True)
@@ -125,17 +152,33 @@ def read_artist(page, artist, timeout=20):
     from playwright.sync_api import Error
     url, number, tags, seen = artist_url(artist), 1, [], set()
     while url:
+        status, stage = None, 'navigation'
         try:
             response = page.goto(url, wait_until='domcontentloaded', timeout=timeout * 1000)
-            if response and response.status >= 400:
-                error = Unavailable if response.status >= 500 or response.status in {403, 429} else ValueError
-                raise error(f'Last.fm HTTP {response.status}')
+            status = response.status if response else None
+            stage = 'rendering'
+            initial = TagPage(page.content())
+            error = blocking_error(initial, status, include_challenge=False)
+            if error:
+                raise error
+            if status is not None and status >= 400:
+                raise ValueError(f'Last.fm artist page unavailable ({page_details(initial, status)})')
             page.wait_for_function("""() => document.querySelector('.tags-list--global .tag a') ||
                 /this artist has no tags|no tags (?:have been added|yet)|be the first to tag this artist/i.test(document.body.innerText)""", timeout=timeout * 1000)
             checked_artist_url(page.url, artist, number)
             document = page.content()
         except Error as error:
-            raise Unavailable('Last.fm browser navigation or tag rendering failed') from error
+            try:
+                current = TagPage(page.content())
+            except Error:
+                current = TagPage('')
+            blocked = blocking_error(current, status)
+            if blocked:
+                raise blocked from error
+            details = page_details(current, status)
+            if stage == 'navigation' or page.is_closed():
+                raise Unavailable(f'Last.fm browser navigation failed ({details})') from error
+            raise ValueError(f'Last.fm artist tags missing from rendered page ({details})') from error
         if len(document.encode('utf-8')) > 10_000_000:
             raise ValueError('Last.fm artist page exceeds 10 MB')
         batch, following = parse_tags(document, artist, number)
@@ -193,6 +236,7 @@ def enrich(rows, years, cache_dir, offline=False, refresh=False):
             with tempfile.TemporaryDirectory(prefix='music-album-releases-lastfm-') as profile:
                 with RedditBrowser(profile, headless=True) as browser:
                     for index, (key, artist) in enumerate(pending):
+                        detail = ''
                         try:
                             tags = read_artist(browser.page, artist)
                             save_cache(cache_dir, artist, tags)
@@ -200,9 +244,9 @@ def enrich(rows, years, cache_dir, offline=False, refresh=False):
                             failures = 0
                         except (ValueError, OSError) as error:
                             errors.append(f'Last.fm artist {artist}: {error}; kept previous tags')
-                            if isinstance(error, Unavailable):
-                                failures += 1
-                        print(f'Last.fm: checked {index + 1}/{len(pending)} artists', file=sys.stderr, flush=True)
+                            detail = f'; {artist}: {error}'
+                            failures = failures + 1 if isinstance(error, Unavailable) else 0
+                        print(f'Last.fm: checked {index + 1}/{len(pending)} artists{detail}', file=sys.stderr, flush=True)
                         if failures >= 3:
                             errors.append(f'Last.fm: stopped after 3 service failures; kept previous tags for {len(pending) - index - 1} remaining artists')
                             break
