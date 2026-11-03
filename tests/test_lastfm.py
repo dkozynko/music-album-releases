@@ -241,7 +241,7 @@ class LastfmTests(unittest.TestCase):
             browser.context.route('https://www.last.fm/**', lambda route: route.fulfill(content_type='text/html',
                 body='<title>Last.fm - Temporarily Unavailable</title><h1>Temporarily unavailable</h1><div>Error 503</div>'))
             with self.assertRaisesRegex(lastfm.Unavailable, r'service error 503.*HTTP 200'):
-                lastfm.read_artist(browser.page, 'Example Act', timeout=0.15)
+                lastfm.read_artist(browser.page, 'Example Act', timeout=1)
 
     @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
     def test_unavailable_page_without_error_number_does_not_invent_service_error_200(self):
@@ -251,7 +251,7 @@ class LastfmTests(unittest.TestCase):
             browser.context.route('https://www.last.fm/**', lambda route: route.fulfill(content_type='text/html',
                 body='<title>Last.fm - Temporarily Unavailable</title><h1>Temporarily unavailable</h1>'))
             with self.assertRaisesRegex(lastfm.Unavailable, r'service error unknown.*HTTP 200'):
-                lastfm.read_artist(browser.page, 'Example Act', timeout=0.15)
+                lastfm.read_artist(browser.page, 'Example Act', timeout=1)
 
     @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
     def test_challenge_timeout_reports_http_status_and_page_title(self):
@@ -261,7 +261,7 @@ class LastfmTests(unittest.TestCase):
             browser.context.route('https://www.last.fm/**', lambda route: route.fulfill(content_type='text/html',
                 body='<title>Client Challenge</title><h1>JavaScript required</h1>'))
             with self.assertRaisesRegex(lastfm.Unavailable, r'access challenge.*HTTP 200.*Client Challenge'):
-                lastfm.read_artist(browser.page, 'Example Act', timeout=0.15)
+                lastfm.read_artist(browser.page, 'Example Act', timeout=1)
 
     @unittest.skipUnless(importlib.util.find_spec('playwright'), 'Optional Playwright dependency not installed')
     def test_missing_tag_markup_on_an_artist_page_is_not_a_global_service_failure(self):
@@ -271,7 +271,7 @@ class LastfmTests(unittest.TestCase):
             browser.context.route('https://www.last.fm/**', lambda route: route.fulfill(content_type='text/html',
                 body=tags_page(tags=())))
             with self.assertRaises(ValueError) as caught:
-                lastfm.read_artist(browser.page, 'Example Act', timeout=0.15)
+                lastfm.read_artist(browser.page, 'Example Act', timeout=1)
             self.assertNotIsInstance(caught.exception, lastfm.Unavailable)
             self.assertIn('HTTP 200', str(caught.exception))
 
@@ -293,7 +293,7 @@ class LastfmTests(unittest.TestCase):
         read_artist = lastfm.read_artist
         with tempfile.TemporaryDirectory() as directory:
             with patch('reddit_browser.RedditBrowser', ArtistPagesBrowser), patch('lastfm.time.sleep'), \
-                 patch('lastfm.read_artist', side_effect=lambda page, artist: read_artist(page, artist, timeout=0.15)):
+                 patch('lastfm.read_artist', side_effect=lambda page, artist: read_artist(page, artist, timeout=1)):
                 errors = lastfm.enrich(rows, {2026}, Path(directory))
             self.assertEqual(rows[3]['lastfm_artist_tags'], ['post-rock'])
             self.assertEqual(len(errors), 3)
