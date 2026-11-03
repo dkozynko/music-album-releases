@@ -1093,6 +1093,7 @@ def render_markdown(year, rows):
     rows = [r for r in rows if int(r["year"]) == year]
     lines = [f"# Post-rock albums — {year}", "", f"{len(rows)} albums. [Download CSV]({year}.csv).", "",
              "Generated from the CSV. An evolving catalog, not an exhaustive census.", "",
+             "Artist tags are supplied by [Last.fm](https://www.last.fm) and describe the artist, not the album.", "",
              "Dates stay partial when the day/month is unknown. Future dates are announced releases and may change.", "",
              "Date status: **primary** = artist/label page; **reported** = catalog; **corrected** = sourced manual correction; **conflict** = sources disagree.", ""]
     buckets = {}

@@ -1,9 +1,10 @@
-"""Last.fm artist tags from public pages rendered by headless Chrome."""
+"""Last.fm artist tags: official API when configured, public browser fallback."""
 
 import hashlib
 import html
 from html.parser import HTMLParser
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -20,6 +21,10 @@ EMPTY = re.compile(r'(?:this artist has no tags(?: yet)?|no tags (?:have been ad
 
 class Unavailable(ValueError):
     """Service/network/challenge failure, rather than an unknown artist."""
+
+
+class InvalidAPIKey(Unavailable):
+    """A rejected API credential must stop the batch immediately."""
 
 
 def artist_key(artist):
@@ -229,30 +234,44 @@ def enrich(rows, years, cache_dir, offline=False, refresh=False):
             errors.append(f'Last.fm artist {artist}: no valid cached artist tags; kept previous tags')
         else:
             pending.append((key, artist))
-    if pending:
-        from reddit_browser import RedditBrowser
+    def collect(reader, interval):
         failures = 0
+        for index, (key, artist) in enumerate(pending):
+            detail = ''
+            try:
+                tags = reader(artist)
+                save_cache(cache_dir, artist, tags)
+                results[key] = tags
+                detail = f'; {artist}: {len(tags)} tags'
+                failures = 0
+            except (ValueError, OSError) as error:
+                errors.append(f'Last.fm artist {artist}: {error}; kept previous tags')
+                detail = f'; {artist}: {error}'
+                if isinstance(error, InvalidAPIKey):
+                    print('Last.fm: API key rejected; stopped artist refresh', file=sys.stderr, flush=True)
+                    break
+                failures = failures + 1 if isinstance(error, Unavailable) else 0
+            print(f'Last.fm: checked {index + 1}/{len(pending)} artists{detail}', file=sys.stderr, flush=True)
+            if failures >= 3:
+                errors.append(f'Last.fm: stopped after 3 service failures; kept previous tags for {len(pending) - index - 1} remaining artists')
+                break
+            if interval:
+                time.sleep(interval)
+
+    if pending:
+        api_key = os.environ.get('LASTFM_API_KEY', '').strip()
         try:
-            with tempfile.TemporaryDirectory(prefix='music-album-releases-lastfm-') as profile:
-                with RedditBrowser(profile, headless=True) as browser:
-                    for index, (key, artist) in enumerate(pending):
-                        detail = ''
-                        try:
-                            tags = read_artist(browser.page, artist)
-                            save_cache(cache_dir, artist, tags)
-                            results[key] = tags
-                            failures = 0
-                        except (ValueError, OSError) as error:
-                            errors.append(f'Last.fm artist {artist}: {error}; kept previous tags')
-                            detail = f'; {artist}: {error}'
-                            failures = failures + 1 if isinstance(error, Unavailable) else 0
-                        print(f'Last.fm: checked {index + 1}/{len(pending)} artists{detail}', file=sys.stderr, flush=True)
-                        if failures >= 3:
-                            errors.append(f'Last.fm: stopped after 3 service failures; kept previous tags for {len(pending) - index - 1} remaining artists')
-                            break
-                        time.sleep(1.1)
+            if api_key:
+                from lastfm_api import ArtistTagsClient
+                print('Last.fm: using artist.getTopTags API', file=sys.stderr, flush=True)
+                collect(ArtistTagsClient(api_key).get_tags, 0)
+            else:
+                from reddit_browser import RedditBrowser
+                with tempfile.TemporaryDirectory(prefix='music-album-releases-lastfm-') as profile:
+                    with RedditBrowser(profile, headless=True) as browser:
+                        collect(lambda artist: read_artist(browser.page, artist), 1.1)
         except (ValueError, OSError) as error:
-            errors.append(f'Last.fm browser: {error}; kept previous artist tags')
+            errors.append(f'Last.fm source: {error}; kept previous artist tags')
     for row in rows:
         key = artist_key(row['artist'])
         if key in results:

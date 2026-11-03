@@ -57,6 +57,7 @@ jobs:
         timeout-minutes: 210
         env:
           LASTFM_ONLY: ${{ inputs.lastfm_only || false }}
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           DISCOGS_TOKEN: ${{ secrets.DISCOGS_TOKEN }}
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
