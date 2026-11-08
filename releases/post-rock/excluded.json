@@ -44718,6 +44718,48 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Umoora",
+    "album": "Dusterwald",
+    "styles": [],
+    "release_date": "2026-04-17",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-04-17"
+    ],
+    "source_ids": [
+      "postrocknation:37998"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/37998/dusterwald",
+      "https://postrocknation.com/bands/3432/umoora",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Umoora",
+    "album": "New Shores",
+    "styles": [],
+    "release_date": "2026-03-20",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-03-20"
+    ],
+    "source_ids": [
+      "postrocknation:37999"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/37999/new-shores",
+      "https://postrocknation.com/bands/3432/umoora",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "Unconditional Arms",
     "album": "What I Had Left Behind",
