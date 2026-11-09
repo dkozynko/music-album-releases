@@ -26510,6 +26510,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "My Beloved",
+    "album": "Last Sun",
+    "styles": [],
+    "release_date": "2026-11-01",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-01"
+    ],
+    "source_ids": [
+      "postrocknation:38396"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38396/last-sun",
+      "https://postrocknation.com/bands/3209/my-beloved",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "My Dark Secret Transcendence",
     "album": "My Dark Secret Transcendence (Deluxe Version)",
@@ -27047,6 +27068,27 @@
     "source_urls": [
       "https://postrocknation.com/albums/21115/bearing-with-the-sea",
       "https://postrocknation.com/bands/3110/new-century-classics",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "New Skies",
+    "album": "Vesuv",
+    "styles": [],
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-30"
+    ],
+    "source_ids": [
+      "postrocknation:38408"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38408/vesuv",
+      "https://postrocknation.com/bands/3433/new-skies",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
