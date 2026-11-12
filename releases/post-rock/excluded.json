@@ -400,6 +400,48 @@
   },
   {
     "year": 2026,
+    "artist": "4dots",
+    "album": "Astral",
+    "styles": [],
+    "release_date": "2026-10-23",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-23"
+    ],
+    "source_ids": [
+      "postrocknation:39031"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39031/astral",
+      "https://postrocknation.com/bands/1/4dots",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "4dots",
+    "album": "Dhakhar",
+    "styles": [],
+    "release_date": "2026-10-21",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-21"
+    ],
+    "source_ids": [
+      "postrocknation:39032"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39032/dhakhar",
+      "https://postrocknation.com/bands/1/4dots",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
     "artist": "54daysathome",
     "album": "AW",
     "styles": [],
@@ -1271,6 +1313,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/17162/thikana",
+      "https://postrocknation.com/bands/1297/a-dot-in-the-sky",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2025,
+    "artist": "A Dot In The Sky",
+    "album": "Thikana",
+    "styles": [],
+    "release_date": "2025-03-07",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2025-03-07"
+    ],
+    "source_ids": [
+      "postrocknation:39041"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39041/thikana",
       "https://postrocknation.com/bands/1297/a-dot-in-the-sky",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -2723,6 +2786,27 @@
   {
     "year": 2026,
     "artist": "Alex Madison",
+    "album": "Voidwyrm",
+    "styles": [],
+    "release_date": "2026-11-10",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-10"
+    ],
+    "source_ids": [
+      "postrocknation:39026"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39026/voidwyrm",
+      "https://postrocknation.com/bands/3101/alex-madison",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Alex Madison",
     "album": "Wreckage",
     "styles": [],
     "release_date": "2026-07-30",
@@ -2779,6 +2863,48 @@
     "source_urls": [
       "https://postrocknation.com/albums/20015/dying-clock",
       "https://postrocknation.com/bands/641/a-light-within",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Alles Club",
+    "album": "Gospel (Acceptance)",
+    "styles": [],
+    "release_date": "2026-10-21",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-21"
+    ],
+    "source_ids": [
+      "postrocknation:39014"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39014/gospel-acceptance",
+      "https://postrocknation.com/bands/938/alles-club",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Alles Club",
+    "album": "Vida Antes",
+    "styles": [],
+    "release_date": "2026-10-15",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-15"
+    ],
+    "source_ids": [
+      "postrocknation:39015"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39015/vida-antes",
+      "https://postrocknation.com/bands/938/alles-club",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -3493,6 +3619,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Anechois",
+    "album": "Ostolia",
+    "styles": [],
+    "release_date": "2026-11-01",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-01"
+    ],
+    "source_ids": [
+      "postrocknation:38995"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38995/ostolia",
+      "https://postrocknation.com/bands/676/anechois",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "animalnia",
     "album": "Peralta EP",
@@ -3848,6 +3995,27 @@
       "https://www.reddit.com/r/postrock/wiki/albums/2025/"
     ],
     "notes": ""
+  },
+  {
+    "year": 2026,
+    "artist": "Asa's Mezzanine",
+    "album": "Mara",
+    "styles": [],
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-30"
+    ],
+    "source_ids": [
+      "postrocknation:38968"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38968/mara",
+      "https://postrocknation.com/bands/436/asas-mezzanine",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
     "year": 2025,
@@ -5581,6 +5749,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "BENJA",
+    "album": "Gentle Giant | Da Capo",
+    "styles": [],
+    "release_date": "2026-10-16",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-16"
+    ],
+    "source_ids": [
+      "postrocknation:39006"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39006/gentle-giant-da-capo",
+      "https://postrocknation.com/bands/855/benja",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "Be They Will Become",
     "album": "forever. lost.",
@@ -5954,6 +6143,27 @@
     "source_urls": [
       "https://postrocknation.com/albums/17137/happy-birthday",
       "https://postrocknation.com/bands/1858/black-country-new-road",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Black Flak and the Nightmare Fighters",
+    "album": "Charnel House",
+    "styles": [],
+    "release_date": "2026-10-21",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-21"
+    ],
+    "source_ids": [
+      "postrocknation:39004"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39004/charnel-house",
+      "https://postrocknation.com/bands/786/black-flak-and-the-nightmare-fighters",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -7097,6 +7307,27 @@
   {
     "year": 2026,
     "artist": "Caspian",
+    "album": "Far Country",
+    "styles": [],
+    "release_date": "2026-10-07",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-07"
+    ],
+    "source_ids": [
+      "postrocknation:39036"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39036/far-country",
+      "https://postrocknation.com/bands/2314/caspian",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Caspian",
     "album": "Remain",
     "styles": [],
     "release_date": "2026-09-10",
@@ -7409,6 +7640,27 @@
   },
   {
     "year": 2026,
+    "artist": "chasers",
+    "album": "please bring me back",
+    "styles": [],
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-30"
+    ],
+    "source_ids": [
+      "postrocknation:39005"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39005/please-bring-me-back",
+      "https://postrocknation.com/bands/3434/chasers",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
     "artist": "Chemtrail",
     "album": "Shoes of Gold",
     "styles": [],
@@ -7528,6 +7780,27 @@
     "source_urls": [
       "https://postrocknation.com/albums/20676/you-guys-wanna-eat-some-more-mushrooms",
       "https://postrocknation.com/bands/2714/childspeak",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Christian Welde",
+    "album": "Norheim (Live)",
+    "styles": [],
+    "release_date": "2026-11-06",
+    "date_status": "reported",
+    "release_type": "live",
+    "date_candidates": [
+      "2026-11-06"
+    ],
+    "source_ids": [
+      "postrocknation:39029"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39029/norheim-live",
+      "https://postrocknation.com/bands/3237/christian-welde",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -8975,6 +9248,27 @@
   {
     "year": 2026,
     "artist": "Cosmic Call",
+    "album": "Closure",
+    "styles": [],
+    "release_date": "2026-10-16",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-16"
+    ],
+    "source_ids": [
+      "postrocknation:38982"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38982/closure",
+      "https://postrocknation.com/bands/3033/cosmic-call",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Cosmic Call",
     "album": "Escape",
     "styles": [],
     "release_date": "2026-09-18",
@@ -9513,6 +9807,48 @@
     "source_urls": [
       "https://cultoflun.postrocknation.com",
       "https://postrocknation.com/albums/22181/in-the-shadow-of-your-shadow",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Cult Of Luna",
+    "album": "Sadness Will Reign",
+    "styles": [],
+    "release_date": "2026-11-04",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-04"
+    ],
+    "source_ids": [
+      "postrocknation:38974"
+    ],
+    "source_urls": [
+      "https://cultoflun.postrocknation.com",
+      "https://postrocknation.com/albums/38974/sadness-will-reign",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Cult Of Luna",
+    "album": "The Rift",
+    "styles": [],
+    "release_date": "2026-10-07",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-07"
+    ],
+    "source_ids": [
+      "postrocknation:38975"
+    ],
+    "source_urls": [
+      "https://cultoflun.postrocknation.com",
+      "https://postrocknation.com/albums/38975/the-rift",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -10226,6 +10562,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/19922/size",
+      "https://postrocknation.com/bands/3226/details",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Details",
+    "album": "Zeroin",
+    "styles": [],
+    "release_date": "2026-11-04",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-04"
+    ],
+    "source_ids": [
+      "postrocknation:38967"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38967/zeroin",
       "https://postrocknation.com/bands/3226/details",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -12272,6 +12629,27 @@
     "notes": ""
   },
   {
+    "year": 2026,
+    "artist": "Euro-Asia",
+    "album": "NAMELESS/YOU CAN NOW ADVANCE",
+    "styles": [],
+    "release_date": "2026-10-14",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-14"
+    ],
+    "source_ids": [
+      "postrocknation:39037"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39037/namelessyou-can-now-advance",
+      "https://postrocknation.com/bands/194/euro-asia",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "Ever Onward",
     "album": "End of Broadcast",
@@ -12687,6 +13065,27 @@
       "https://www.youtube.com/watch?v=aWw-05kEI6w"
     ],
     "notes": ""
+  },
+  {
+    "year": 2026,
+    "artist": "False Hope for the Savage",
+    "album": "X (Cities)",
+    "styles": [],
+    "release_date": "2026-10-23",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-23"
+    ],
+    "source_ids": [
+      "postrocknation:38999"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38999/x-cities",
+      "https://postrocknation.com/bands/720/false-hope-for-the-savage",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
     "year": 2026,
@@ -15452,6 +15851,27 @@
   {
     "year": 2026,
     "artist": "Gui Boratto",
+    "album": "Molten (Gui Boratto's Rework)",
+    "styles": [],
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-30"
+    ],
+    "source_ids": [
+      "postrocknation:39007"
+    ],
+    "source_urls": [
+      "https://guiboratto.postrocknation.com",
+      "https://postrocknation.com/albums/39007/molten-gui-borattos-rework",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Gui Boratto",
     "album": "Pale Tale",
     "styles": [],
     "release_date": "2026-04-10",
@@ -15613,6 +16033,27 @@
     "source_urls": [
       "https://guiboratto.postrocknation.com",
       "https://postrocknation.com/albums/17450/theres-another-way-gui-borattos-rework",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Gui Boratto",
+    "album": "Você (Gui Boratto Remix)",
+    "styles": [],
+    "release_date": "2026-10-22",
+    "date_status": "reported",
+    "release_type": "remix",
+    "date_candidates": [
+      "2026-10-22"
+    ],
+    "source_ids": [
+      "postrocknation:39008"
+    ],
+    "source_urls": [
+      "https://guiboratto.postrocknation.com",
+      "https://postrocknation.com/albums/39008/voce-gui-boratto-remix",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -15865,6 +16306,27 @@
     "source_urls": [
       "https://postrocknation.com/albums/18384/vampiric-desires",
       "https://postrocknation.com/bands/3217/guild-theory",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Gísli Gunnarsson",
+    "album": "Söknuður (Live in Grindavík)",
+    "styles": [],
+    "release_date": "2026-10-09",
+    "date_status": "reported",
+    "release_type": "live",
+    "date_candidates": [
+      "2026-10-09"
+    ],
+    "source_ids": [
+      "postrocknation:38997"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38997/soknudur-live-in-grindavik",
+      "https://postrocknation.com/bands/2955/gisli-gunnarsson",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -18862,6 +19324,27 @@
   {
     "year": 2026,
     "artist": "Interstellar Noise",
+    "album": "Coastal Night",
+    "styles": [],
+    "release_date": "2026-11-06",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-06"
+    ],
+    "source_ids": [
+      "postrocknation:39043"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39043/coastal-night",
+      "https://postrocknation.com/bands/2918/interstellar-noise",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Interstellar Noise",
     "album": "Cosmic Melt",
     "styles": [],
     "release_date": "2026-01-09",
@@ -18875,6 +19358,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/20536/cosmic-melt",
+      "https://postrocknation.com/bands/2918/interstellar-noise",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Interstellar Noise",
+    "album": "Escape",
+    "styles": [],
+    "release_date": "2026-10-09",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-09"
+    ],
+    "source_ids": [
+      "postrocknation:39044"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39044/escape",
       "https://postrocknation.com/bands/2918/interstellar-noise",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -19689,6 +20193,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/16478/autumn",
+      "https://postrocknation.com/bands/3028/james-dorsett",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "James Dorsett",
+    "album": "Brakedisc",
+    "styles": [],
+    "release_date": "2026-10-15",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-15"
+    ],
+    "source_ids": [
+      "postrocknation:39000"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39000/brakedisc",
       "https://postrocknation.com/bands/3028/james-dorsett",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -20975,6 +21500,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Katre",
+    "album": "Gaia",
+    "styles": [],
+    "release_date": "2026-10-08",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-08"
+    ],
+    "source_ids": [
+      "postrocknation:39009"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39009/gaia",
+      "https://postrocknation.com/bands/940/katre",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "KAUAN",
     "album": "depart / dive",
@@ -21980,6 +22526,48 @@
     "source_urls": [
       "https://postrocknation.com/albums/17168/water",
       "https://postrocknation.com/bands/3092/last-leaf-down",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Laughing At Oblivion",
+    "album": "Five Eleven",
+    "styles": [],
+    "release_date": "2026-11-12",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-12"
+    ],
+    "source_ids": [
+      "postrocknation:39039"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39039/five-eleven",
+      "https://postrocknation.com/bands/3109/laughing-at-oblivion",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Laughing At Oblivion",
+    "album": "Four Ten",
+    "styles": [],
+    "release_date": "2026-10-08",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-08"
+    ],
+    "source_ids": [
+      "postrocknation:39040"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39040/four-ten",
+      "https://postrocknation.com/bands/3109/laughing-at-oblivion",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -24160,6 +24748,27 @@
   },
   {
     "year": 2026,
+    "artist": "Maestro's Monster",
+    "album": "I",
+    "styles": [],
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-30"
+    ],
+    "source_ids": [
+      "postrocknation:39042"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39042/i",
+      "https://postrocknation.com/bands/2917/maestros-monster",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
     "artist": "Mafspace",
     "album": "Another Day",
     "styles": [],
@@ -25763,6 +26372,27 @@
     "source_urls": [
       "https://mogwai.postrocknation.com",
       "https://postrocknation.com/albums/16533/fanzine-made-of-flesh",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Mogwai",
+    "album": "It Won't Stop [Mogwai Remix (Barry Burns)]",
+    "styles": [],
+    "release_date": "2026-10-27",
+    "date_status": "reported",
+    "release_type": "remix",
+    "date_candidates": [
+      "2026-10-27"
+    ],
+    "source_ids": [
+      "postrocknation:38977"
+    ],
+    "source_urls": [
+      "https://mogwai.postrocknation.com",
+      "https://postrocknation.com/albums/38977/it-wont-stop-mogwai-remix-barry-burns",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -27848,6 +28478,27 @@
   {
     "year": 2026,
     "artist": "Ocean Districts",
+    "album": "Pulsar",
+    "styles": [],
+    "release_date": "2026-11-07",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-07"
+    ],
+    "source_ids": [
+      "postrocknation:39019"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39019/pulsar",
+      "https://postrocknation.com/bands/1190/ocean-districts",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Ocean Districts",
     "album": "Superstar Destroyer",
     "styles": [],
     "release_date": "2026-09-23",
@@ -29501,6 +30152,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Perry Frank",
+    "album": "Matinée",
+    "styles": [],
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-30"
+    ],
+    "source_ids": [
+      "postrocknation:38993"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38993/matinee",
+      "https://postrocknation.com/bands/667/perry-frank",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "Perry Frank",
     "album": "Oasis",
@@ -29558,6 +30230,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/17734/surfing-the-clouds",
+      "https://postrocknation.com/bands/667/perry-frank",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Perry Frank",
+    "album": "Wanderlust",
+    "styles": [],
+    "release_date": "2026-10-16",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-16"
+    ],
+    "source_ids": [
+      "postrocknation:38994"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38994/wanderlust",
       "https://postrocknation.com/bands/667/perry-frank",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -30521,6 +31214,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/16581/aces-over-deuces",
+      "https://postrocknation.com/bands/3018/quarantine-angst",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Quarantine Angst",
+    "album": "Cavalcade of Indignities",
+    "styles": [],
+    "release_date": "2026-10-16",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-16"
+    ],
+    "source_ids": [
+      "postrocknation:38972"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38972/cavalcade-of-indignities",
       "https://postrocknation.com/bands/3018/quarantine-angst",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -32491,6 +33205,27 @@
   },
   {
     "year": 2026,
+    "artist": "SaaR",
+    "album": "Wafadaari",
+    "styles": [],
+    "release_date": "2026-10-24",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-24"
+    ],
+    "source_ids": [
+      "postrocknation:39018"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39018/wafadaari",
+      "https://postrocknation.com/bands/1128/saar",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
     "artist": "Sagor Som Leder Mot Slutet",
     "album": "Aska",
     "styles": [],
@@ -32656,6 +33391,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Sansyou",
+    "album": "The Song of Everything",
+    "styles": [],
+    "release_date": "2026-10-08",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-08"
+    ],
+    "source_ids": [
+      "postrocknation:38970"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38970/the-song-of-everything",
+      "https://postrocknation.com/bands/451/sansyou",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "SANTOPADRE",
     "album": "Grass",
@@ -32714,6 +33470,69 @@
     "source_urls": [
       "https://postrocknation.com/albums/18259/vulgar-display-of-nothingness",
       "https://postrocknation.com/bands/3222/santopadre",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2025,
+    "artist": "Scalavamo Torri",
+    "album": "Minh",
+    "styles": [],
+    "release_date": "2025-07-16",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2025-07-16"
+    ],
+    "source_ids": [
+      "postrocknation:39022"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39022/minh",
+      "https://postrocknation.com/bands/3435/scalavamo-torri",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2025,
+    "artist": "Scalavamo Torri",
+    "album": "Silent Egress",
+    "styles": [],
+    "release_date": "2025-10-17",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2025-10-17"
+    ],
+    "source_ids": [
+      "postrocknation:39021"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39021/silent-egress",
+      "https://postrocknation.com/bands/3435/scalavamo-torri",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2025,
+    "artist": "Scalavamo Torri",
+    "album": "Whale's Lament",
+    "styles": [],
+    "release_date": "2025-06-04",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2025-06-04"
+    ],
+    "source_ids": [
+      "postrocknation:39023"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39023/whales-lament",
+      "https://postrocknation.com/bands/3435/scalavamo-torri",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -35420,6 +36239,27 @@
       "https://www.reddit.com/r/postrock/wiki/albums/2026/"
     ],
     "notes": ""
+  },
+  {
+    "year": 2026,
+    "artist": "Soft Collapse",
+    "album": "Brightness Circle",
+    "styles": [],
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-30"
+    ],
+    "source_ids": [
+      "postrocknation:39038"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39038/brightness-circle",
+      "https://postrocknation.com/bands/3392/soft-collapse",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
     "year": 2026,
@@ -38532,6 +39372,27 @@
     "source_urls": [
       "https://postrocknation.com/albums/18268/capa-we-are-only-stardust",
       "https://postrocknation.com/bands/3068/tars",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Tenchio",
+    "album": "ELIMINATE",
+    "styles": [],
+    "release_date": "2026-10-25",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-25"
+    ],
+    "source_ids": [
+      "postrocknation:38991"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38991/eliminate",
+      "https://postrocknation.com/bands/665/tenchio",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -44153,6 +45014,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "ttemplos",
+    "album": "Mdddm",
+    "styles": [],
+    "release_date": "2026-10-16",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-16"
+    ],
+    "source_ids": [
+      "postrocknation:39011"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39011/mdddm",
+      "https://postrocknation.com/bands/918/ttemplos",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "ttemplos",
     "album": "Sistema (anti)Natural",
@@ -46397,6 +47279,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Weal",
+    "album": "Eudaimonia",
+    "styles": [],
+    "release_date": "2026-10-30",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-30"
+    ],
+    "source_ids": [
+      "postrocknation:38990"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38990/eudaimonia",
+      "https://postrocknation.com/bands/653/weal",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "We Are Impala",
     "album": "Contra la Tirania del Domèstic",
@@ -46516,6 +47419,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/22561/banzai",
+      "https://postrocknation.com/bands/3413/wegoingnowhere",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "wegoingnowhere",
+    "album": "catch you if you fall",
+    "styles": [],
+    "release_date": "2026-11-06",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-06"
+    ],
+    "source_ids": [
+      "postrocknation:39034"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39034/catch-you-if-you-fall",
       "https://postrocknation.com/bands/3413/wegoingnowhere",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -48109,6 +49033,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "yassno",
+    "album": "Doubts Awaken",
+    "styles": [],
+    "release_date": "2026-11-06",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-06"
+    ],
+    "source_ids": [
+      "postrocknation:38980"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/38980/doubts-awaken",
+      "https://postrocknation.com/bands/3371/yassno",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "yassno",
     "album": "Synesthesia (Live)",
@@ -48648,6 +49593,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/21653/the-ash-of-the-sermon",
+      "https://postrocknation.com/bands/3356/ahm",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "åhm",
+    "album": "They Drain",
+    "styles": [],
+    "release_date": "2026-10-09",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-09"
+    ],
+    "source_ids": [
+      "postrocknation:39028"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/39028/they-drain",
       "https://postrocknation.com/bands/3356/ahm",
       "https://postrocknation.com/page/release-archive"
     ],
