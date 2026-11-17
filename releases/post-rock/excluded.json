@@ -11305,6 +11305,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Disgrace the Model",
+    "album": "Programmed Cell Death",
+    "styles": [],
+    "release_date": "2026-11-15",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-15"
+    ],
+    "source_ids": [
+      "postrocknation:44932"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/44932/programmed-cell-death",
+      "https://postrocknation.com/bands/3439/disgrace-the-model",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "Distant Dream",
     "album": "Wbrew sobie",
