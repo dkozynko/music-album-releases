@@ -6,7 +6,7 @@ from html import escape
 CSS = """
 :root { color-scheme: light dark; --bg: #fff; --fg: #20242a; --muted: #59636e;
   --line: #d8dee5; --stripe: #f5f7fa; --accent: #075bc4;
-  --date-width: 92px; --artist-width: 194px; --album-width: 314px; }
+  --date-width: 92px; --release-width: 300px; }
 @media (prefers-color-scheme: dark) {
   :root { --bg: #171b21; --fg: #e2e7ed; --muted: #a6b1be;
     --line: #38414c; --stripe: #20262e; --accent: #83bcff; }
@@ -27,23 +27,22 @@ th, td { padding: 3px 7px; text-align: left; white-space: nowrap;
   border-bottom: 1px solid var(--line); vertical-align: top; }
 thead th { position: sticky; top: 0; z-index: 2; background: var(--bg);
   box-shadow: 0 1px 0 var(--line); }
-thead th:nth-child(-n+4), tbody td:nth-child(-n+4) { position: sticky;
+thead th:nth-child(-n+3), tbody td:nth-child(-n+3) { position: sticky;
   background: var(--bg); z-index: 1; }
-thead th:nth-child(-n+4) { z-index: 3; }
+thead th:nth-child(-n+3) { z-index: 3; }
 thead th:nth-child(1), tbody td:nth-child(1) { left: 0; min-width: var(--date-width); }
 thead th:nth-child(2), tbody td:nth-child(2) { left: var(--date-width); min-width: var(--date-width); }
-thead th:nth-child(3), tbody td:nth-child(3) { left: calc(2 * var(--date-width)); }
-thead th:nth-child(4), tbody td:nth-child(4) { left: calc(2 * var(--date-width) + var(--artist-width)); }
+thead th:nth-child(3), tbody td:nth-child(3) { left: calc(2 * var(--date-width));
+  width: var(--release-width); min-width: var(--release-width); max-width: var(--release-width); }
 .identity { display: block; overflow: hidden; text-overflow: ellipsis; }
-td:nth-child(3) .identity { width: calc(var(--artist-width) - 14px); }
-td:nth-child(4) .identity { width: calc(var(--album-width) - 14px); }
+td:nth-child(3) .identity { width: calc(var(--release-width) - 14px); }
 tbody tr:nth-child(even) td { background: var(--stripe); }
 tbody tr:hover td { background: var(--line); }
 .month th { padding-top: 10px; padding-bottom: 6px; background: var(--stripe); }
 td:nth-child(-n+2) { font-variant-numeric: tabular-nums; }
 @media (max-width: 900px) {
-  tbody td:nth-child(-n+4) { position: static; }
-  thead th:nth-child(-n+4) { left: auto; }
+  tbody td:nth-child(-n+3) { position: static; }
+  thead th:nth-child(-n+3) { left: auto; }
 }
 @media (max-width: 600px) { body { padding: 8px; } h1 { font-size: 17px; } }
 """.strip()

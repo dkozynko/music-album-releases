@@ -47,7 +47,7 @@ class CatalogDateTests(unittest.TestCase):
             m.write_catalog(root, rows, {2026})
             self.assertEqual(m.read_catalog(root)[0]["added_date"], "2026-11-24")
             document = (root / "2026.md").read_text()
-            self.assertIn("<th nowrap><sub>Added</sub></th>", document)
+            self.assertIn('<th nowrap align="left"><sub>Added</sub></th>', document)
             self.assertIn("<td nowrap><sub>2026-11-24</sub></td>", document)
 
     def test_render_only_reads_legacy_csv_without_backfilling_or_rewriting_it(self):
@@ -65,7 +65,7 @@ class CatalogDateTests(unittest.TestCase):
             with patch.object(m, "backfill_added_dates", side_effect=AssertionError("render-only must not migrate")):
                 self.assertEqual(m.main(["--year", "2026", "--output-dir", str(root), "--render-only"]), 0)
             self.assertEqual(path.read_bytes(), original)
-            self.assertIn("<th nowrap><sub>Added</sub></th>", (root / "2026.md").read_text())
+            self.assertIn('<th nowrap align="left"><sub>Added</sub></th>', (root / "2026.md").read_text())
 
     def test_git_backfill_uses_first_appearance_by_id_across_year_files(self):
         m = updater()

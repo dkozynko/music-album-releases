@@ -43,7 +43,7 @@ class LastfmTests(unittest.TestCase):
         m = updater()
         rows = m.merge_catalog([observation(styles=['Post Rock'], lastfm_artist_tags=['ambient | drone & noise'])])
         document = m.render_markdown(2026, rows)
-        self.assertIn('<th nowrap><sub>Last.fm artist tags</sub></th><th nowrap><sub>Styles</sub></th>', document)
+        self.assertIn('<th nowrap align="left"><sub>Last.fm artist tags</sub></th><th nowrap align="left"><sub>Styles</sub></th>', document)
         self.assertIn('<td nowrap><sub>ambient | drone &amp; noise</sub></td><td nowrap><sub>Post Rock</sub></td>', document)
 
     def test_csv_migrates_the_current_schema_without_losing_album_facts(self):

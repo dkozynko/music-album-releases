@@ -1,5 +1,6 @@
 import csv
 import json
+from html.parser import HTMLParser
 from pathlib import Path
 import tempfile
 import unittest
@@ -8,6 +9,40 @@ from test_update import observation, updater
 
 
 class BrowserViewTests(unittest.TestCase):
+    def test_release_column_limits_github_preview_and_preserves_full_hover_text(self):
+        m = updater()
+        artist = 'A very long artist name with "quotes" & <symbols>'
+        album = 'An even longer album title that should remain available on hover'
+        row = m.merge_catalog([observation(artist=artist, album=album)])[0]
+        class Identity(HTMLParser):
+            def __init__(self, document):
+                super().__init__()
+                self.title, self.visible = None, ''
+                self.inside = False
+                self.feed(document)
+            def handle_starttag(self, tag, attrs):
+                if tag == 'span' and dict(attrs).get('title'):
+                    self.title = dict(attrs)['title']
+                    self.inside = True
+            def handle_data(self, text):
+                if self.inside:
+                    self.visible += text
+            def handle_endtag(self, tag):
+                if tag == 'span':
+                    self.inside = False
+        for kind, document in [('md', m.render_markdown(2026, [row])), ('html', m.render_html(2026, [row]))]:
+            with self.subTest(kind=kind):
+                identity = Identity(document)
+                self.assertEqual(identity.title, artist + ' — ' + album)
+                if kind == 'md':
+                    self.assertLessEqual(len(identity.visible), 40)
+                    self.assertTrue(identity.visible.endswith('…'))
+                    self.assertIn(' — ', identity.visible)
+                    self.assertIn('An even longer', identity.visible)
+                else:
+                    self.assertEqual(identity.visible, identity.title)
+                self.assertIn('Release', document)
+
     def test_previous_style_first_csv_migrates_without_losing_tags_or_dates(self):
         m = updater()
         row = m.merge_catalog([observation(styles=['Post Rock'], lastfm_artist_tags=['ambient', 'post-rock'])],

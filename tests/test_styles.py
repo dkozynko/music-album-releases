@@ -93,11 +93,11 @@ class StyleTests(unittest.TestCase):
         m = updater()
         rows = m.merge_catalog([observation(styles=["Ambient | Drone", "Post Rock", "<experimental>"])])
         markdown = m.render_markdown(2026, rows)
-        self.assertIn("<th nowrap><sub>Last.fm artist tags</sub></th><th nowrap><sub>Styles</sub></th>", markdown)
+        self.assertIn('<th nowrap align="left"><sub>Last.fm artist tags</sub></th><th nowrap align="left"><sub>Styles</sub></th>', markdown)
         self.assertIn("&lt;experimental&gt;, Ambient | Drone, Post Rock", markdown)
         album_lines = [line for line in markdown.splitlines() if line.startswith("<tr>")]
         self.assertEqual(len(album_lines), 1)
-        self.assertEqual(album_lines[0].count("<td nowrap>"), 9)
+        self.assertEqual(album_lines[0].count("<td nowrap>"), 8)
         unknown = m.render_markdown(2026, m.merge_catalog([observation()]))
         self.assertIn("<td nowrap><sub>—</sub></td>", unknown)
 

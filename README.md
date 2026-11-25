@@ -2,7 +2,7 @@
 
 A personal post-rock / post-metal album calendar: **one album per row**, a script-owned CSV for each year, and Markdown and browser HTML rendered from that CSV.
 
-**[Open the compact browser view](https://dkozynko.github.io/music-album-releases/).** It uses the full browser width, smaller 13px table text and sticky column headings. Last.fm artist tags appear before Styles in CSV, Markdown and HTML. Date, artist and album columns stay visible while scrolling horizontally on desktop. Long artist/album names use compact cells with the full name on hover; tags remain complete on one line. Year links and CSV downloads are at the top of each page.
+**[Open the compact browser view](https://dkozynko.github.io/music-album-releases/).** It uses the full browser width, smaller 13px table text and sticky column headings. Last.fm artist tags appear before Styles in CSV, Markdown and HTML. Artist and album share one **Release** column (`Artist — Album`): a 40-character preview on GitHub, or a fixed 300px column in the browser view, with full text on hover. Date, Added and Release stay visible while scrolling horizontally on desktop; tags remain complete on one line. The CSV keeps separate artist and album fields. Year links and CSV downloads are at the top of each page.
 
 `"genres": ["post-rock", "post-metal"]` in [`sources.json`](sources.json) discovers either style, including albums tagged with both. Discogs searches each style separately and combines editions before fetching masters; MusicBrainz searches with OR; Bandcamp accepts either tag; Sputnikmusic reads both genre listings. Shared albums keep one row. Older configurations without `genres` retain post-rock discovery. The shared files stay in `releases/post-rock/` to preserve existing links.
 

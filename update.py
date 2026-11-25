@@ -1161,7 +1161,8 @@ def source_link(url):
     return f'<a href="{href}">{table_text(name)}</a>'
 
 
-TABLE_HEADINGS = ["Date", "Added", "Artist", "Album", "Last.fm artist tags", "Styles", "Date status", "Sources", "Notes"]
+TABLE_HEADINGS = ["Date", "Added", "Release", "Last.fm artist tags", "Styles", "Date status", "Sources", "Notes"]
+RELEASE_PREVIEW_LENGTH = 40
 
 
 def month_groups(year, rows):
@@ -1178,15 +1179,25 @@ def month_groups(year, rows):
 
 
 def album_table_row(row, compact=False, small_text=False):
-    cells = [row["release_date"] or "Unresolved", row.get("added_date") or "—", row["artist"], row["album"],
+    artist = row["artist"].replace("\r", " ").replace("\n", " ")
+    album = row["album"].replace("\r", " ").replace("\n", " ")
+    release = f"{artist} — {album}"
+    cells = [row["release_date"] or "Unresolved", row.get("added_date") or "—", release,
              ", ".join(lastfm_tag_list(row.get("lastfm_artist_tags", []))) or "—",
              ", ".join(style_list(row.get("styles", []))) or "—", row["date_status"]]
     links = " ".join(source_link(u) for u in string_list(row["source_urls"]))
     values = [*(table_text(v) for v in cells), links, table_text(row["notes"])]
-    if compact:
-        for column in (2, 3):
-            title = html.escape(str(cells[column]), quote=True).replace("\r", " ").replace("\n", " ")
-            values[column] = f'<span class="identity" title="{title}">{values[column]}</span>'
+    preview = release
+    if not compact and len(preview) > RELEASE_PREVIEW_LENGTH:
+        available = RELEASE_PREVIEW_LENGTH - len(" — ")
+        artist_limit = min(len(artist), available // 2)
+        album_limit = min(len(album), available - artist_limit)
+        artist_limit = min(len(artist), available - album_limit)
+        def clipped(value, limit):
+            return value if len(value) <= limit else value[:limit - 1].rstrip() + "…"
+        preview = clipped(artist, artist_limit) + " — " + clipped(album, album_limit)
+    identity_class = ' class="identity"' if compact else ''
+    values[2] = f'<span{identity_class} title="{html.escape(release, quote=True)}">{table_text(preview)}</span>'
     if small_text:
         values = [f"<sub>{value}</sub>" for value in values]
     return "<tr>" + "".join(f"<td nowrap>{value}</td>" for value in values) + "</tr>"
@@ -1211,7 +1222,7 @@ def render_markdown(year, rows):
     for month, selected in month_groups(year, rows):
         # GitHub strips CSS and <small>, but preserves compact <sub> formatting.
         lines += ["## " + month, "",
-                  "<table>", "<thead><tr>" + "".join(f"<th nowrap><sub>{heading}</sub></th>" for heading in TABLE_HEADINGS) + "</tr></thead>",
+                  "<table>", "<thead><tr>" + "".join(f'<th nowrap align="left"><sub>{heading}</sub></th>' for heading in TABLE_HEADINGS) + "</tr></thead>",
                   "<tbody>"]
         lines.extend(album_table_row(row, small_text=True) for row in selected)
         lines += ["</tbody>", "</table>", ""]
