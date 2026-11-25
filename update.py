@@ -1177,7 +1177,7 @@ def month_groups(year, rows):
         yield title, sorted(buckets[month], key=lambda r: (r["release_date"], r["artist"].casefold(), r["album"].casefold()))
 
 
-def album_table_row(row, compact=False):
+def album_table_row(row, compact=False, small_text=False):
     cells = [row["release_date"] or "Unresolved", row.get("added_date") or "—", row["artist"], row["album"],
              ", ".join(lastfm_tag_list(row.get("lastfm_artist_tags", []))) or "—",
              ", ".join(style_list(row.get("styles", []))) or "—", row["date_status"]]
@@ -1187,6 +1187,8 @@ def album_table_row(row, compact=False):
         for column in (2, 3):
             title = html.escape(str(cells[column]), quote=True).replace("\r", " ").replace("\n", " ")
             values[column] = f'<span class="identity" title="{title}">{values[column]}</span>'
+    if small_text:
+        values = [f"<sub>{value}</sub>" for value in values]
     return "<tr>" + "".join(f"<td nowrap>{value}</td>" for value in values) + "</tr>"
 
 
@@ -1207,11 +1209,11 @@ def render_markdown(year, rows):
              "Dates stay partial when the day/month is unknown. Future dates are announced releases and may change.", "",
              "Date status: **primary** = artist/label page; **reported** = catalog; **corrected** = sourced manual correction; **conflict** = sources disagree.", ""]
     for month, selected in month_groups(year, rows):
-        # GitHub preserves the nowrap cell attribute but strips inline styles.
+        # GitHub strips CSS and <small>, but preserves compact <sub> formatting.
         lines += ["## " + month, "",
-                  "<table>", "<thead><tr>" + "".join(f"<th nowrap>{heading}</th>" for heading in TABLE_HEADINGS) + "</tr></thead>",
+                  "<table>", "<thead><tr>" + "".join(f"<th nowrap><sub>{heading}</sub></th>" for heading in TABLE_HEADINGS) + "</tr></thead>",
                   "<tbody>"]
-        lines.extend(album_table_row(row) for row in selected)
+        lines.extend(album_table_row(row, small_text=True) for row in selected)
         lines += ["</tbody>", "</table>", ""]
     return "\n".join(lines).rstrip() + "\n"
 

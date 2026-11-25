@@ -337,7 +337,7 @@ class CatalogTests(unittest.TestCase):
             source_urls=["https://example.bandcamp.com/album/a(b)?a=1&b=2"],
         )])
         md = m.render_markdown(2026, rows)
-        self.assertIn("<td nowrap>A | B</td>", md)
+        self.assertIn("<td nowrap><sub>A | B</sub></td>", md)
         self.assertIn("&lt;Unusual&gt;", md)
         self.assertIn("2026-10", md)
         self.assertNotIn("2026-10-01", md)

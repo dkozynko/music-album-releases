@@ -28,7 +28,9 @@ class BrowserViewTests(unittest.TestCase):
             for extension in ('md', 'html'):
                 document = path.with_suffix('.' + extension).read_text()
                 self.assertLess(document.index('Last.fm artist tags'), document.index('Styles'))
-                self.assertIn('<td nowrap>ambient, post-rock</td><td nowrap>Post Rock</td>', document)
+                values = ('<td nowrap><sub>ambient, post-rock</sub></td><td nowrap><sub>Post Rock</sub></td>' if extension == 'md'
+                          else '<td nowrap>ambient, post-rock</td><td nowrap>Post Rock</td>')
+                self.assertIn(values, document)
 
     def test_standalone_view_preserves_escaped_values_and_year_navigation(self):
         m = updater()
