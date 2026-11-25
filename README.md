@@ -1,19 +1,21 @@
 # Music album releases
 
-A personal post-rock / post-metal album calendar: **one album per row**, a script-owned CSV for each year, and Markdown rendered from that CSV.
+A personal post-rock / post-metal album calendar: **one album per row**, a script-owned CSV for each year, and Markdown and browser HTML rendered from that CSV.
+
+**[Open the compact browser view](https://dkozynko.github.io/music-album-releases/).** It uses the full browser width, smaller 13px table text and sticky column headings. Last.fm artist tags appear before Styles in CSV, Markdown and HTML. Date, artist and album columns stay visible while scrolling horizontally on desktop. Long artist/album names use compact cells with the full name on hover; tags remain complete on one line. Year links and CSV downloads are at the top of each page.
 
 `"genres": ["post-rock", "post-metal"]` in [`sources.json`](sources.json) discovers either style, including albums tagged with both. Discogs searches each style separately and combines editions before fetching masters; MusicBrainz searches with OR; Bandcamp accepts either tag; Sputnikmusic reads both genre listings. Shared albums keep one row. Older configurations without `genres` retain post-rock discovery. The shared files stay in `releases/post-rock/` to preserve existing links.
 
 The `added_date` CSV column (shown as **Added** in Markdown) records when an album first entered this catalog, as `YYYY-MM-DD` in UTC. It survives refreshes, corrected release years and added sources; merging existing duplicates keeps the earliest known date. It is independent of the album's release date and source upload/edit timestamps. Older CSV schemas are migrated automatically: when complete local Git history is available, the script recovers the earliest CSV commit containing that saved album ID. This is the first recorded appearance, rather than an exact historical scrape time. Unrecoverable dates remain empty / `—`; legacy albums are never assigned today's date as though they were new. GitHub Actions checks out full history for this migration. `--render-only` continues to leave CSV unchanged.
 
-Calendar tables use HTML cells with wrapping disabled so each album occupies one visual line on GitHub. Scroll horizontally to read all columns and full tag lists; no tags are shortened or hidden.
+Markdown tables keep wrapping disabled so each album occupies one visual line on GitHub. GitHub controls that viewer's font size and page width and [strips custom CSS](https://github.com/github/markup#github-markup), so use the compact browser view for the smaller, wider layout. The generated `YYYY.html` files are self-contained and can also be opened directly in a browser without a server or extra dependencies.
 
 The `styles` column includes all available Discogs styles, MusicBrainz tags, Bandcamp tags, Post-Rock Nation artist tags and Sputnikmusic artist genre tags (including all voted tags, not only the displayed top three). Tags from matching albums and editions are combined, sorted and deduplicated across case/spacing/hyphen variations. Already-cached Discogs metadata also supplies tags for saved albums that no longer match discovery filters. Source labels are preserved; Bandcamp's free-form tags can also be descriptive or geographic. Missing tags remain `[]` in CSV and `—` in Markdown. Earlier CSV files without this column are read and upgraded automatically on the next update.
 
 The separate `lastfm_artist_tags` column contains **only the artist/band's Last.fm tags**. With `LASTFM_API_KEY` configured, the updater uses Last.fm's official `artist.getTopTags` API; otherwise it can read public artist tag pages using headless Chrome. These are not album tags and are never mixed into `styles`. No Last.fm user login is needed. Earlier CSV schemas are upgraded automatically.
 
-- [2026 calendar](releases/post-rock/2026.md) · [CSV](releases/post-rock/2026.csv)
-- [2025 calendar](releases/post-rock/2025.md) · [CSV](releases/post-rock/2025.csv)
+- [2026 browser view](https://dkozynko.github.io/music-album-releases/releases/post-rock/2026.html) · [Markdown](releases/post-rock/2026.md) · [CSV](releases/post-rock/2026.csv)
+- [2025 browser view](https://dkozynko.github.io/music-album-releases/releases/post-rock/2025.html) · [Markdown](releases/post-rock/2025.md) · [CSV](releases/post-rock/2025.csv)
 
 ## Run
 
@@ -29,12 +31,12 @@ Several years in one run:
 python3 update.py --year 2025 2026
 ```
 
-Without `--year`, the updater uses the current year. Run it again to discover releases and refresh metadata. It writes `releases/post-rock/YYYY.csv` and `YYYY.md` and retains previous albums when a source disappears.
+Without `--year`, the updater uses the current year. Run it again to discover releases and refresh metadata. It writes `releases/post-rock/YYYY.csv`, `YYYY.md` and `YYYY.html`, plus an index pointing to the latest available year. Previous albums survive when a source disappears. Older style-first CSV headers are read automatically and reordered without changing their values on the next write.
 
 ```sh
 python3 update.py --year 2026 --offline       # Cached source responses only
 python3 update.py --year 2026 --refresh       # Refresh source caches now
-python3 update.py --year 2026 --render-only   # Markdown from CSV; no network or CSV edits
+python3 update.py --year 2026 --render-only   # Markdown/HTML from CSV; no network or CSV edits
 .venv/bin/python update.py --year 2025 2026 --lastfm-only  # Refresh only saved artists' Last.fm tags
 python3 -m unittest discover -s tests -v
 ```
@@ -45,7 +47,9 @@ If a source fails, existing albums remain, successful sources can still update t
 
 ## Daily automatic updates
 
-The [GitHub Actions workflow](.github/workflows/update-releases.yml) runs daily at **07:17 Europe/Warsaw**, including daylight-saving changes. It updates the current and previous years (2025 and 2026 during 2026), then commits changed CSV, Markdown and exclusion state directly to `main` as `github-actions[bot]`. Unchanged files produce no commit. The repository's built-in `GITHUB_TOKEN` supplies write access; no personal token or local computer is required. You can also start it with **Actions → Update album releases → Run workflow** on `main`.
+The [GitHub Actions workflow](.github/workflows/update-releases.yml) runs daily at **07:17 Europe/Warsaw**, including daylight-saving changes. It updates the current and previous years (2025 and 2026 during 2026), then commits changed CSV, Markdown, HTML and exclusion state directly to `main` as `github-actions[bot]`. Unchanged files produce no commit. The repository's built-in `GITHUB_TOKEN` supplies write access; no personal token or local computer is required. You can also start it with **Actions → Update album releases → Run workflow** on `main`.
+
+GitHub Pages serves the static browser view from `main` / repository root, with `.nojekyll`. The updater explicitly requests a Pages build after publication using the built-in token's `pages: write` permission, because [pushes made with `GITHUB_TOKEN` do not trigger Pages builds](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#troubleshooting-publishing-from-a-branch). A Pages refresh failure is reported separately and does not discard catalog updates.
 
 The runner installs Python, Playwright and Chrome, runs the tests, and reuses only public HTTP/wiki response caches. Browser profiles and login sessions are never uploaded. Source warnings appear in the job summary; successful partial updates are still published with previous data retained for unavailable sources. Fatal updater errors stop publication. Simultaneous updates are serialized, and pushes retry after rebasing without force-pushing. The first uncached run can take considerably longer because source rate limits are respected.
 

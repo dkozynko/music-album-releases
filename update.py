@@ -30,9 +30,11 @@ from lastfm import artist_key as lastfm_artist_key, tag_list as lastfm_tag_list
 
 ROOT = Path(__file__).resolve().parent
 USER_AGENT = "music-album-releases/0.1 (https://github.com/dkozynko/music-album-releases)"
-FIELDS = ["id", "year", "artist", "album", "styles", "lastfm_artist_tags", "release_date", "added_date", "date_status",
+FIELDS = ["id", "year", "artist", "album", "lastfm_artist_tags", "styles", "release_date", "added_date", "date_status",
           "release_type", "date_candidates", "source_ids", "source_urls", "notes"]
-PREVIOUS_FIELDS = [field for field in FIELDS if field != "added_date"]
+STYLE_FIRST_FIELDS = FIELDS.copy()
+STYLE_FIRST_FIELDS[4:6] = ["styles", "lastfm_artist_tags"]
+PREVIOUS_FIELDS = [field for field in STYLE_FIRST_FIELDS if field != "added_date"]
 STYLE_FIELDS = [field for field in PREVIOUS_FIELDS if field != "lastfm_artist_tags"]
 LEGACY_FIELDS = [field for field in STYLE_FIELDS if field != "styles"]
 LIST_FIELDS = {"styles", "lastfm_artist_tags", "date_candidates", "source_ids", "source_urls"}
@@ -1066,7 +1068,7 @@ def read_catalog(output_dir):
     for path in sorted(output_dir.glob("[0-9][0-9][0-9][0-9].csv")):
         with path.open(encoding="utf-8", newline="") as stream:
             reader = csv.DictReader(stream)
-            if reader.fieldnames not in (FIELDS, PREVIOUS_FIELDS, STYLE_FIELDS, LEGACY_FIELDS):
+            if reader.fieldnames not in (FIELDS, STYLE_FIRST_FIELDS, PREVIOUS_FIELDS, STYLE_FIELDS, LEGACY_FIELDS):
                 raise ValueError(f"Unexpected CSV columns in {path}; use --input to import other formats")
             rows.extend(prepare(r) for r in reader)
     return rows
@@ -1159,38 +1161,63 @@ def source_link(url):
     return f'<a href="{href}">{table_text(name)}</a>'
 
 
+TABLE_HEADINGS = ["Date", "Added", "Artist", "Album", "Last.fm artist tags", "Styles", "Date status", "Sources", "Notes"]
+
+
+def month_groups(year, rows):
+    buckets = {}
+    for row in rows:
+        if int(row["year"]) != year:
+            continue
+        value = row["release_date"]
+        month = int(value[5:7]) if len(value) >= 7 else 0
+        buckets.setdefault(month, []).append(row)
+    for month in sorted(buckets, key=lambda m: m or 13):
+        title = calendar.month_name[month] if month else "Month unknown / needs review"
+        yield title, sorted(buckets[month], key=lambda r: (r["release_date"], r["artist"].casefold(), r["album"].casefold()))
+
+
+def album_table_row(row, compact=False):
+    cells = [row["release_date"] or "Unresolved", row.get("added_date") or "—", row["artist"], row["album"],
+             ", ".join(lastfm_tag_list(row.get("lastfm_artist_tags", []))) or "—",
+             ", ".join(style_list(row.get("styles", []))) or "—", row["date_status"]]
+    links = " ".join(source_link(u) for u in string_list(row["source_urls"]))
+    values = [*(table_text(v) for v in cells), links, table_text(row["notes"])]
+    if compact:
+        for column in (2, 3):
+            title = html.escape(str(cells[column]), quote=True).replace("\r", " ").replace("\n", " ")
+            values[column] = f'<span class="identity" title="{title}">{values[column]}</span>'
+    return "<tr>" + "".join(f"<td nowrap>{value}</td>" for value in values) + "</tr>"
+
+
+def render_html(year, rows, years=()):
+    from browser_view import render
+    groups = [(month, [album_table_row(row, compact=True) for row in selected]) for month, selected in month_groups(year, rows)]
+    return render(year, groups, TABLE_HEADINGS, years)
+
+
 def render_markdown(year, rows):
     rows = [r for r in rows if int(r["year"]) == year]
     lines = [f"# Post-rock / post-metal albums — {year}", "", f"{len(rows)} albums. [Download CSV]({year}.csv).", "",
+             f"[Open compact browser view](https://dkozynko.github.io/music-album-releases/releases/post-rock/{year:04d}.html).", "",
              "Generated from the CSV. An evolving catalog, not an exhaustive census.", "",
              "Each album stays on one line; scroll tables horizontally to see all columns and tags.", "",
              "Added is the first date recorded in this catalog (UTC), independent of the release date; — means unknown.", "",
              "Artist tags are supplied by [Last.fm](https://www.last.fm) and describe the artist, not the album.", "",
              "Dates stay partial when the day/month is unknown. Future dates are announced releases and may change.", "",
              "Date status: **primary** = artist/label page; **reported** = catalog; **corrected** = sourced manual correction; **conflict** = sources disagree.", ""]
-    buckets = {}
-    for row in rows:
-        value = row["release_date"]
-        month = int(value[5:7]) if len(value) >= 7 else 0
-        buckets.setdefault(month, []).append(row)
-    for month in sorted(buckets, key=lambda m: m or 13):
-        headings = ["Date", "Added", "Artist", "Album", "Styles", "Last.fm artist tags", "Date status", "Sources", "Notes"]
+    for month, selected in month_groups(year, rows):
         # GitHub preserves the nowrap cell attribute but strips inline styles.
-        lines += ["## " + (calendar.month_name[month] if month else "Month unknown / needs review"), "",
-                  "<table>", "<thead><tr>" + "".join(f"<th nowrap>{heading}</th>" for heading in headings) + "</tr></thead>",
+        lines += ["## " + month, "",
+                  "<table>", "<thead><tr>" + "".join(f"<th nowrap>{heading}</th>" for heading in TABLE_HEADINGS) + "</tr></thead>",
                   "<tbody>"]
-        for row in sorted(buckets[month], key=lambda r: (r["release_date"], r["artist"].casefold(), r["album"].casefold())):
-            cells = [row["release_date"] or "Unresolved", row.get("added_date") or "—", row["artist"], row["album"],
-                     ", ".join(style_list(row.get("styles", []))) or "—",
-                     ", ".join(lastfm_tag_list(row.get("lastfm_artist_tags", []))) or "—", row["date_status"]]
-            links = " ".join(source_link(u) for u in string_list(row["source_urls"]))
-            values = [*(table_text(v) for v in cells), links, table_text(row["notes"])]
-            lines.append("<tr>" + "".join(f"<td nowrap>{value}</td>" for value in values) + "</tr>")
+        lines.extend(album_table_row(row) for row in selected)
         lines += ["</tbody>", "</table>", ""]
     return "\n".join(lines).rstrip() + "\n"
 
 
 def write_catalog(output_dir, rows, years):
+    from browser_view import index
     years = set(years) | {r["year"] for r in rows} | {int(p.stem) for p in output_dir.glob("[0-9][0-9][0-9][0-9].csv")}
     for year in sorted(years):
         selected = [r for r in rows if r["year"] == year]
@@ -1203,10 +1230,14 @@ def write_catalog(output_dir, rows, years):
         # Render the serialized CSV, so its contents are the single output truth.
         round_tripped = [prepare(r) for r in csv.DictReader(io.StringIO(csv_text))]
         markdown = render_markdown(year, round_tripped)
+        browser = render_html(year, round_tripped, years)
         atomic_write(output_dir / f"{year:04d}.csv", csv_text)
         atomic_write(output_dir / f"{year:04d}.md", markdown)
+        atomic_write(output_dir / f"{year:04d}.html", browser)
         conflicts = sum(r["date_status"] == "conflict" for r in selected)
         print(f"{year}: {len(selected)} albums, {conflicts} date conflicts → {output_dir / f'{year:04d}.csv'}")
+    if years:
+        atomic_write(output_dir / "index.html", index(years))
 
 
 def load_list(path):
@@ -1226,7 +1257,7 @@ def main(argv=None):
     parser.add_argument("--cache-dir", type=Path, default=ROOT / ".cache/http")
     parser.add_argument("--offline", action="store_true", help="Use cached source data only; no browser or network")
     parser.add_argument("--refresh", action="store_true", help="Ignore the 24-hour source cache lifetime")
-    parser.add_argument("--render-only", action="store_true", help="Regenerate Markdown from existing CSV without changing CSV")
+    parser.add_argument("--render-only", action="store_true", help="Regenerate Markdown and browser HTML from CSV without changing CSV")
     parser.add_argument("--lastfm-only", action="store_true", help="Refresh Last.fm artist tags on saved albums without fetching release sources")
     parser.add_argument("--reddit-browser", action="store_true", help="Read Reddit wiki with headless Chrome instead of the API")
     parser.add_argument("--reddit-login", action="store_true", help="Open dedicated visible Chrome for sign-in and cache the wiki; do not edit catalogs")
@@ -1260,10 +1291,15 @@ def main(argv=None):
                 print("Warning: " + error, file=sys.stderr)
             return 1 if errors else 0
         if args.render_only:
+            from browser_view import index
+            years = {int(p.stem) for p in args.output_dir.glob("[0-9][0-9][0-9][0-9].csv")}
             for year in args.year:
                 if not (args.output_dir / f"{year:04d}.csv").exists():
                     raise ValueError(f"No CSV for {year}")
                 atomic_write(args.output_dir / f"{year:04d}.md", render_markdown(year, existing))
+                atomic_write(args.output_dir / f"{year:04d}.html", render_html(year, existing, years))
+            if years:
+                atomic_write(args.output_dir / "index.html", index(years))
             return 0
         backfill_added_dates(existing, args.output_dir)
         corrections = load_list(args.corrections)
