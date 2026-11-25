@@ -1,4 +1,4 @@
-"""Public Sputnikmusic post-rock listing and catalog metadata; standard library only."""
+"""Public Sputnikmusic post-rock / post-metal listings and catalog metadata."""
 
 import calendar
 from datetime import date
@@ -10,6 +10,7 @@ from urllib.parse import parse_qs, urljoin, urlsplit
 
 BASE = "https://www.sputnikmusic.com"
 LISTING_URL = BASE + "/newreleases.php?t=6"
+GENRES = {"post-rock": ("6", "Post Rock"), "post-metal": ("38", "Post Metal")}
 MONTHS = {name.lower(): i for i, name in enumerate(calendar.month_name) if name}
 SECTIONS = {"LPs": "album", "EPs": "ep", "Live Albums": "live", "Compilations": "compilation",
             "Singles": "single", "Demos": "demo", "Remixes": "remix"}
@@ -26,7 +27,7 @@ def album_id(href):
     parts = native_path(href)
     if not parts:
         return None
-    match = re.fullmatch(r"/album/([1-9]\d*)(?:/.*)?", parts.path)
+    match = re.fullmatch(r"/(?:album|album-ratings)/([1-9]\d*)(?:/.*)?", parts.path)
     if match:
         return int(match[1])
     if parts.path == "/soundoff.php":
@@ -41,6 +42,10 @@ class Page(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.text, self.links, self.styles = [], [], []
         self.selected_genre = None
+        self.canonical, self.current_genres = None, set()
+        self.divs, self.month_divs = 0, []
+        self.spans, self.label_level, self.metadata_label, self.metadata_key = 0, None, [], ""
+        self.release_level, self.release_text = None, []
         self.month, self.kind = "", "album"
         self.hidden = self.tables = self.strong = self.lists = 0
         self.discography, self.genre_lists = [], []
@@ -54,6 +59,25 @@ class Page(HTMLParser):
             self.hidden += 1
         if self.hidden:
             return
+        if tag == "link" and "canonical" in (attrs.get("rel") or "").split():
+            self.canonical = native_path(attrs.get("href", ""))
+        if "ch-on" in (attrs.get("class") or "").split() and attrs.get("aria-current") == "page":
+            self.current_genres.add(attrs.get("data-g"))
+        if tag == "div":
+            self.divs += 1
+            if "ag-v" in (attrs.get("class") or "").split():
+                if self.metadata_key == "Released":
+                    self.release_level = self.divs
+                self.metadata_key = ""
+            if "nr-month" in (attrs.get("class") or "").split():
+                match = re.fullmatch(r"m(\d{4}-(?:0[1-9]|1[0-2]))", attrs.get("id", ""))
+                if match:
+                    self.month_divs.append((self.divs, self.month))
+                    self.month = match[1]
+        if tag == "span":
+            self.spans += 1
+            if "ag-k" in (attrs.get("class") or "").split():
+                self.label_level, self.metadata_label = self.spans, []
         if tag == "table":
             self.tables += 1
             if "plaincontentbox" in (attrs.get("class") or "").split():
@@ -73,12 +97,22 @@ class Page(HTMLParser):
         if tag == "a":
             self.anchor = {"href": attrs.get("href", ""), "text": [], "month": self.month,
                            "kind": self.kind, "discography": bool(self.discography),
-                           "genre_tag": bool(self.genre_lists)}
+                           "genre_tag": bool(self.genre_lists),
+                           "release_tile": "nr-tile" in (attrs.get("class") or "").split()}
+        if tag == "img" and self.anchor is not None and self.anchor["release_tile"]:
+            parts = native_path(attrs.get("src", ""))
+            match = re.fullmatch(r"/images/albums/([1-9]\d*)\.jpg(?:-thumbl?)?", parts.path) if parts else None
+            if match:
+                self.anchor["image_album_id"] = int(match[1])
 
     def handle_data(self, value):
         if self.hidden or not value.strip():
             return
         value = " ".join(value.split())
+        if self.label_level is not None:
+            self.metadata_label.append(value)
+        if self.release_level is not None:
+            self.release_text.append(value)
         if self.anchor is not None:
             self.anchor["text"].append(value)
         if self.option is not None:
@@ -96,6 +130,17 @@ class Page(HTMLParser):
             self.hidden = max(0, self.hidden - 1)
         if self.hidden:
             return
+        if tag == "div":
+            if self.release_level == self.divs:
+                self.release_level = None
+            if self.month_divs and self.month_divs[-1][0] == self.divs:
+                _, self.month = self.month_divs.pop()
+            self.divs = max(0, self.divs - 1)
+        if tag == "span":
+            if self.label_level == self.spans:
+                self.metadata_key = " ".join(self.metadata_label)
+                self.label_level = None
+            self.spans = max(0, self.spans - 1)
         if tag == "a" and self.anchor is not None:
             self.anchor["text"] = " ".join(self.anchor["text"])
             self.links.append(self.anchor)
@@ -122,13 +167,21 @@ class Page(HTMLParser):
             self.lists = max(0, self.lists - 1)
 
 
-def parse_listing(document):
+def parse_listing(document, genre="post-rock"):
     page = Page(document)
-    if page.selected_genre != (["6"], "Post Rock"):
-        raise ValueError("Sputnikmusic listing is not the selected Post Rock genre")
+    identifier, label = GENRES[genre]
+    modern = (page.canonical is not None and page.canonical.path == f"/newreleases/{genre}/" and
+              page.current_genres == {genre})
+    if page.selected_genre != ([identifier], label) and not modern:
+        raise ValueError(f"Sputnikmusic listing is not the selected {label} genre")
     found = {}
     for link in page.links:
         identifier = album_id(link["href"])
+        parts = native_path(link["href"])
+        if not identifier and link["release_tile"] and parts and re.fullmatch(r"/review/[1-9]\d*/.*", parts.path):
+            identifier = link.get("image_album_id")
+        if link["release_tile"] and link["month"] and not identifier:
+            raise ValueError("Sputnikmusic release tile lacks a native album identifier")
         if identifier and link["month"]:
             found.setdefault(identifier, set()).add(link["month"])
     if not found:
@@ -149,7 +202,9 @@ def parse_album(document, identifier):
             query = parse_qs(parts.query)
             if query.get("a") == [str(identifier)] and query.get("band_name") and query.get("album_name"):
                 identity = (query["band_name"][0], query["album_name"][0])
-    match = re.search(r"\bRelease Date:\s*([1-9]\d{3})\b", " ".join(page.text))
+    text = " ".join(page.text)
+    match = (re.fullmatch(r"(?:[A-Za-z]+\s+(?:\d{1,2},?\s+)?)?([1-9]\d{3})", " ".join(page.release_text))
+             if page.release_text else re.search(r"\bRelease Date:\s*([1-9]\d{3})\b", text))
     if not identity or not all(value.strip() for value in identity) or not band_url or not match:
         raise ValueError("Sputnikmusic album lacks matching identity, artist link or release year")
     year = int(match[1])
@@ -172,14 +227,21 @@ def parse_band(document):
     return sorted(set(styles)), types
 
 
-def collect_sputnik(client, years, existing=()):
+def collect_sputnik(client, years, existing=(), genres=("post-rock",)):
     rows, errors, candidates, bands, saved_years = [], [], {}, {}, {}
-    try:
-        listed = parse_listing(client.get(LISTING_URL))
-        candidates.update((identifier, months) for identifier, months in listed.items()
-                          if any(int(month[:4]) in years for month in months))
-    except (ValueError, KeyError, TypeError, OSError) as error:
-        errors.append(f"Sputnikmusic listing: {error}")
+    listing_urls, listing_styles = {}, {}
+    for genre in genres:
+        number, label = GENRES[genre]
+        url = BASE + "/newreleases.php?t=" + number
+        try:
+            listed = parse_listing(client.get(url), genre)
+            for identifier, months in listed.items():
+                if any(int(month[:4]) in years for month in months):
+                    candidates.setdefault(identifier, set()).update(months)
+                    listing_urls.setdefault(identifier, set()).add(url)
+                    listing_styles.setdefault(identifier, set()).add(label)
+        except (ValueError, KeyError, TypeError, OSError) as error:
+            errors.append(f"Sputnikmusic {genre} listing: {error}")
     for row in existing:
         if int(row["year"]) in years:
             for source_id in row.get("source_ids", []):
@@ -188,6 +250,11 @@ def collect_sputnik(client, years, existing=()):
                     identifier = int(match[1])
                     candidates.setdefault(identifier, set())
                     saved_years[identifier] = int(row["year"])
+                    for number, label in GENRES.values():
+                        url = BASE + "/newreleases.php?t=" + number
+                        if url in row.get("source_urls", []):
+                            listing_urls.setdefault(identifier, set()).add(url)
+                            listing_styles.setdefault(identifier, set()).add(label)
     for identifier, months in sorted(candidates.items()):
         url = BASE + "/soundoff.php?albumid=" + str(identifier)
         try:
@@ -213,8 +280,8 @@ def collect_sputnik(client, years, existing=()):
                         break
             record.update(release_date=value, date_candidates=[str(record["year"]), value],
                           date_status="reported", release_type=kind,
-                          styles=styles + ["Post Rock"], source_ids=[f"sputnikmusic:{identifier}"],
-                          source_urls=[url, band_url, LISTING_URL], notes="Sputnikmusic genres are artist-level tags.")
+                          styles=sorted(set(styles) | listing_styles.get(identifier, set())), source_ids=[f"sputnikmusic:{identifier}"],
+                          source_urls=[url, band_url] + sorted(listing_urls.get(identifier, set())), notes="Sputnikmusic genres are artist-level tags.")
             # Keep the discovery bucket when an upstream year changes, and let the
             # shared merger retain the contradictory original-date claim.
             record["year"] = saved_years.get(identifier, record["year"])

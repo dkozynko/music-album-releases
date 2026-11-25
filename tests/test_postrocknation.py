@@ -186,13 +186,14 @@ class BandcampReferenceTests(unittest.TestCase):
         m,url,facts=self.facts()
         # The initial saved ID came from the community title before the bad link
         # changed the preferred artist/title to the unrelated primary release.
-        old=m.merge_catalog(facts,m.merge_catalog([facts[0],facts[2]]))
+        old=m.merge_catalog(facts,m.merge_catalog([facts[0],facts[2]],added_on='2026-11-01'),added_on='2026-11-01')
         self.assertEqual(len(old),1)
         clean,existing=m.reconcile_bandcamp_references(facts,old)
         rows=m.merge_catalog(clean,existing)
         self.assertEqual(len(rows),2)
         primary=next(r for r in rows if r['artist']=='Example Act')
         self.assertEqual(primary['id'],old[0]['id'])
+        self.assertEqual(primary['added_date'],'2026-11-01')
         self.assertEqual(primary['release_date'],'2024-04-26')
         different=next(r for r in rows if r['artist']=='Different Act')
         self.assertEqual(different['release_date'],'2026-10-02')

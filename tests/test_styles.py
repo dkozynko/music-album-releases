@@ -97,7 +97,7 @@ class StyleTests(unittest.TestCase):
         self.assertIn("&lt;experimental&gt;, Ambient | Drone, Post Rock", markdown)
         album_lines = [line for line in markdown.splitlines() if line.startswith("<tr>")]
         self.assertEqual(len(album_lines), 1)
-        self.assertEqual(album_lines[0].count("<td nowrap>"), 8)
+        self.assertEqual(album_lines[0].count("<td nowrap>"), 9)
         unknown = m.render_markdown(2026, m.merge_catalog([observation()]))
         self.assertIn("<td nowrap>—</td>", unknown)
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Update a personal post-rock catalog; optional Playwright for Reddit HTML."""
+"""Update a personal post-rock / post-metal catalog; optional Playwright for Reddit HTML."""
 
 import argparse
 import base64
 import calendar
 import csv
-from datetime import date
+from datetime import date, datetime, timezone
 from email.utils import parsedate_to_datetime
 import hashlib
 import html
@@ -30,13 +30,15 @@ from lastfm import artist_key as lastfm_artist_key, tag_list as lastfm_tag_list
 
 ROOT = Path(__file__).resolve().parent
 USER_AGENT = "music-album-releases/0.1 (https://github.com/dkozynko/music-album-releases)"
-FIELDS = ["id", "year", "artist", "album", "styles", "lastfm_artist_tags", "release_date", "date_status",
+FIELDS = ["id", "year", "artist", "album", "styles", "lastfm_artist_tags", "release_date", "added_date", "date_status",
           "release_type", "date_candidates", "source_ids", "source_urls", "notes"]
-PREVIOUS_FIELDS = [field for field in FIELDS if field != "lastfm_artist_tags"]
-LEGACY_FIELDS = [field for field in PREVIOUS_FIELDS if field != "styles"]
+PREVIOUS_FIELDS = [field for field in FIELDS if field != "added_date"]
+STYLE_FIELDS = [field for field in PREVIOUS_FIELDS if field != "lastfm_artist_tags"]
+LEGACY_FIELDS = [field for field in STYLE_FIELDS if field != "styles"]
 LIST_FIELDS = {"styles", "lastfm_artist_tags", "date_candidates", "source_ids", "source_urls"}
 STATUSES = {"unknown", "reported", "primary", "corrected", "conflict"}
 NON_ALBUMS = {"ep", "single", "live", "compilation", "remix", "demo", "reissue", "excluded"}
+DISCOGS_STYLES = {"post-rock": "Post Rock", "post-metal": "Post-Metal"}
 
 
 def normalize_date(value):
@@ -63,6 +65,25 @@ def normalize_date(value):
 
 def normalized(value):
     return "".join(c for c in unicodedata.normalize("NFKC", value).casefold() if c.isalnum())
+
+
+def selected_genres(config):
+    values = config.get("genres", ["post-rock"])
+    if not isinstance(values, list) or not values or any(not isinstance(v, str) or v not in DISCOGS_STYLES for v in values):
+        raise ValueError("genres must be a nonempty list containing post-rock and/or post-metal")
+    return tuple(dict.fromkeys(values))
+
+
+def matches_genres(tags, genres):
+    return bool({normalized(tag) for tag in tags} & {normalized(genre) for genre in genres})
+
+
+def normalize_added_date(value):
+    if value in (None, ""):
+        return ""
+    if not isinstance(value, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        raise ValueError("added_date must be a full ISO date (YYYY-MM-DD)")
+    return date.fromisoformat(value).isoformat()
 
 
 def album_key(artist, album):
@@ -112,6 +133,7 @@ def prepare(record):
             raise ValueError(f"An observation needs a nonempty {field}")
         row[field] = html.unescape(row[field]).strip()
     row["release_date"] = normalize_date(row.get("release_date", ""))
+    row["added_date"] = normalize_added_date(row.get("added_date", ""))
     row["year"] = int(row.get("year") or row["release_date"][:4])
     date(row["year"], 1, 1)
     row["date_status"] = row.get("date_status", "reported")
@@ -210,9 +232,11 @@ def resolve_dates(rows):
     return "-".join(shared), "conflict", candidates
 
 
-def merge_catalog(observations, existing=(), corrections=()):
+def merge_catalog(observations, existing=(), corrections=(), *, added_on=None):
     validate_corrections(corrections)
-    rows = [apply_corrections(prepare(r), corrections) for r in list(existing) + list(observations)]
+    added_on = normalize_added_date(added_on or datetime.now(timezone.utc).date().isoformat())
+    saved = [dict(r, _saved=True) for r in existing]
+    rows = [apply_corrections(prepare(r), corrections) for r in saved + list(observations)]
     parents = list(range(len(rows)))
     seen = {}
 
@@ -302,6 +326,8 @@ def merge_catalog(observations, existing=(), corrections=()):
                 if lastfm_artist_key(r["artist"]) == lastfm_artist_key(preferred["artist"])
                 for v in r["lastfm_artist_tags"]]),
             "release_date": value, "date_status": status, "release_type": "album",
+            "added_date": min((r["added_date"] for r in group if r["added_date"]),
+                              default="" if any(r.get("_saved") for r in group) else added_on),
             "date_candidates": candidates,
             "source_ids": sorted({v for r in group for v in r["source_ids"]}),
             "source_urls": sorted({v for r in group for v in r["source_urls"]}),
@@ -355,7 +381,7 @@ def reconcile_bandcamp_references(observations, existing, corrections=()):
                     not {normalized(v) for v in old["styles"]}.issubset(styles) or
                     not set(old["source_urls"]).issubset(urls)):
                 continue
-            replacement = dict(primary_raw, id=old["id"])
+            replacement = dict(primary_raw, id=old["id"], added_date=old["added_date"])
             notes = [line for line in old["notes"].splitlines() if not line.startswith(("Date conflict: ", "Other dates: "))]
             replacement["notes"] = "\n".join(notes + [primary_raw["notes"], "Previously combined with a different artist through a community Bandcamp link."])
             retained.append(replacement)
@@ -451,12 +477,12 @@ def parse_bandcamp_album(document, url):
     }
 
 
-def parse_musicbrainz(payload, year=None):
+def parse_musicbrainz(payload, year=None, genres=("post-rock",)):
     if not isinstance(payload, dict) or not isinstance(payload.get("release-groups"), list):
         raise ValueError("MusicBrainz release-group response has an unexpected structure")
     output = []
     for group in payload["release-groups"]:
-        if not any(normalized(t["name"]) == "postrock" for t in group.get("tags", [])):
+        if not matches_genres((t["name"] for t in group.get("tags", [])), genres):
             continue
         primary = str(group.get("primary-type", "")).lower()
         secondary = {str(v).lower() for v in group.get("secondary-types", [])} - {"soundtrack"}
@@ -517,11 +543,11 @@ def parse_discogs_master(payload, year, release_ids=()):
     return discogs_observation(payload, str(original_year), ids, f"https://www.discogs.com/master/{identifier}")
 
 
-def parse_discogs_release(payload, year):
+def parse_discogs_release(payload, year, genres=("post-rock",)):
     kinds = discogs_formats(payload)
     if "album" not in kinds or kinds & {"reissue", "repress", "remastered"} or discogs_non_album(payload):
         return None
-    if not any(normalized(v) == "postrock" for v in payload.get("styles", [])):
+    if not matches_genres(payload.get("styles", []), genres):
         return None
     value = normalize_date(payload.get("released") or payload.get("year"))
     if not value or int(value[:4]) != year:
@@ -533,42 +559,46 @@ def parse_discogs_release(payload, year):
                                f"https://www.discogs.com/release/{identifier}")
 
 
-def collect_discogs(client, years):
+def collect_discogs(client, years, genres=("post-rock",)):
     rows, errors = [], []
     for year in sorted(years):
-        releases, seen, page, pages = {}, set(), 1, 1
-        while page <= pages:
-            try:
-                query = urlencode({"type": "release", "style": "Post Rock", "format": "Album",
-                                   "year": year, "per_page": 100, "page": page})
-                payload = json.loads(client.get("https://api.discogs.com/database/search?" + query))
-                results, pagination = payload["results"], payload["pagination"]
-                if not isinstance(results, list) or int(pagination["page"]) != page:
-                    raise ValueError("Unexpected Discogs search page structure")
-                pages = int(pagination["pages"])
-                ids = {int(item["id"]) for item in results}
-                if ids and min(ids) <= 0 or page > 1 and not ids.difference(seen) or not results and int(pagination["items"]):
-                    raise ValueError("Discogs pagination did not advance")
-                seen.update(ids)
-                for item in results:
-                    if item.get("type") != "release" or str(item.get("year")) != str(year):
-                        continue
-                    if not any(normalized(v) == "postrock" for v in item.get("style", [])):
-                        continue
-                    if "album" in discogs_formats(item) and not discogs_non_album(item):
-                        releases[int(item["id"])] = item
-                items, per_page = int(pagination["items"]), int(pagination["per_page"])
-                if items < 0 or per_page <= 0 or pages < 0:
-                    raise ValueError("Invalid Discogs pagination metadata")
-                expected_pages = (items + per_page - 1) // per_page
-                if items and (pages != expected_pages or page > pages) or not items and (results or pages not in {0, 1}):
-                    raise ValueError("Inconsistent Discogs pagination; source may be incomplete")
-                if page == 1 or page % 5 == 0 or page == pages:
-                    print(f"Discogs {year}: search page {page}/{pages}, {len(releases)} candidate editions", file=sys.stderr, flush=True)
-                page += 1
-            except (ValueError, KeyError, TypeError) as error:
-                errors.append(f"Discogs {year} search page {page}: {error}. Set DISCOGS_TOKEN if API authentication is required.")
-                break
+        releases = {}
+        for genre in genres:
+            seen, page, pages = set(), 1, 1
+            while page <= pages:
+                try:
+                    query = urlencode({"type": "release", "style": DISCOGS_STYLES[genre], "format": "Album",
+                                       "year": year, "per_page": 100, "page": page})
+                    payload = json.loads(client.get("https://api.discogs.com/database/search?" + query))
+                    results, pagination = payload["results"], payload["pagination"]
+                    if not isinstance(results, list) or int(pagination["page"]) != page:
+                        raise ValueError("Unexpected Discogs search page structure")
+                    pages = int(pagination["pages"])
+                    ids = {int(item["id"]) for item in results}
+                    if ids and min(ids) <= 0 or page > 1 and not ids.difference(seen) or not results and int(pagination["items"]):
+                        raise ValueError("Discogs pagination did not advance")
+                    seen.update(ids)
+                    for item in results:
+                        if item.get("type") != "release" or str(item.get("year")) != str(year):
+                            continue
+                        if not matches_genres(item.get("style", []), genres):
+                            continue
+                        if "album" in discogs_formats(item) and not discogs_non_album(item):
+                            old = releases.get(int(item["id"]), {})
+                            item["style"] = style_list(old.get("style", []) + item.get("style", []))
+                            releases[int(item["id"])] = item
+                    items, per_page = int(pagination["items"]), int(pagination["per_page"])
+                    if items < 0 or per_page <= 0 or pages < 0:
+                        raise ValueError("Invalid Discogs pagination metadata")
+                    expected_pages = (items + per_page - 1) // per_page
+                    if items and (pages != expected_pages or page > pages) or not items and (results or pages not in {0, 1}):
+                        raise ValueError("Inconsistent Discogs pagination; source may be incomplete")
+                    if page == 1 or page % 5 == 0 or page == pages:
+                        print(f"Discogs {year} {genre}: search page {page}/{pages}, {len(releases)} candidate editions", file=sys.stderr, flush=True)
+                    page += 1
+                except (ValueError, KeyError, TypeError) as error:
+                    errors.append(f"Discogs {year} {genre} search page {page}: {error}. Set DISCOGS_TOKEN if API authentication is required.")
+                    break
         masters, standalone = {}, []
         for identifier, item in releases.items():
             try:
@@ -593,7 +623,7 @@ def collect_discogs(client, years):
                     releases[identifier]["style"] = style_list(releases[identifier].get("style", []) + (payload.get("styles") or []))
                     masters.setdefault(master_id, set()).add(identifier)
                 else:
-                    row = parse_discogs_release(payload, year)
+                    row = parse_discogs_release(payload, year, genres)
                     if row:
                         row["styles"] = style_list(row["styles"] + releases[identifier].get("style", []))
                         rows.append(row)
@@ -926,6 +956,7 @@ class HTTPClient:
 
 
 def collect_sources(config, years, client, seeds, existing=()):
+    genres = selected_genres(config)
     rows, errors = list(seeds), []
     if config.get("postrocknation", False):
         from postrocknation import collect_postrocknation
@@ -934,11 +965,11 @@ def collect_sources(config, years, client, seeds, existing=()):
         errors.extend(warnings)
     if config.get("sputnikmusic", False):
         from sputnik import collect_sputnik
-        batch, warnings = collect_sputnik(client, years, existing)
+        batch, warnings = collect_sputnik(client, years, existing, genres=genres)
         rows.extend(batch)
         errors.extend(warnings)
     if config.get("discogs", False):
-        batch, warnings = collect_discogs(client, years)
+        batch, warnings = collect_discogs(client, years, genres)
         rows.extend(batch)
         errors.extend(warnings)
     reddit_mode = config.get("reddit_mode", "api")
@@ -977,10 +1008,11 @@ def collect_sources(config, years, client, seeds, existing=()):
             ids = set()
             try:
                 while offset < count:
-                    query = f'tag:"post-rock" AND primarytype:album AND firstreleasedate:[{year:04d}-01-01 TO {year:04d}-12-31]'
+                    tags = " OR ".join(f'tag:"{genre}"' for genre in genres)
+                    query = ("(" + tags + ")" if len(genres) > 1 else tags) + f' AND primarytype:album AND firstreleasedate:[{year:04d}-01-01 TO {year:04d}-12-31]'
                     url = "https://musicbrainz.org/ws/2/release-group/?" + urlencode({"query": query, "fmt": "json", "limit": 100, "offset": offset})
                     payload = json.loads(client.get(url))
-                    batch = parse_musicbrainz(payload, year)
+                    batch = parse_musicbrainz(payload, year, genres)
                     page_ids = {g["id"] for g in payload["release-groups"]}
                     count = int(payload["count"])
                     if offset < count and not page_ids.difference(ids):
@@ -1018,7 +1050,7 @@ def collect_sources(config, years, client, seeds, existing=()):
                 # A contradictory original year must reach the merge, not vanish at this filter.
                 row["year"] = known_years[url]
                 rows.append(row)
-            elif row["year"] in years and (url in explicit or any(normalized(t) == "postrock" for t in row["tags"])):
+            elif row["year"] in years and (url in explicit or matches_genres(row["tags"], genres)):
                 rows.append(row)
             elif url in explicit and row["year"] is None:
                 raise ValueError("Selected album has no release date; import an observation with its discovery year")
@@ -1034,10 +1066,47 @@ def read_catalog(output_dir):
     for path in sorted(output_dir.glob("[0-9][0-9][0-9][0-9].csv")):
         with path.open(encoding="utf-8", newline="") as stream:
             reader = csv.DictReader(stream)
-            if reader.fieldnames not in (FIELDS, PREVIOUS_FIELDS, LEGACY_FIELDS):
+            if reader.fieldnames not in (FIELDS, PREVIOUS_FIELDS, STYLE_FIELDS, LEGACY_FIELDS):
                 raise ValueError(f"Unexpected CSV columns in {path}; use --input to import other formats")
             rows.extend(prepare(r) for r in reader)
     return rows
+
+
+def backfill_added_dates(rows, output_dir):
+    """Recover first recorded dates by stable CSV ID, never from source/upload dates."""
+    missing = {row["id"] for row in rows if row.get("id") and not row["added_date"]}
+    if not missing:
+        return
+
+    def git(*args):
+        result = subprocess.run(["git", "-C", str(output_dir), *args], capture_output=True,
+                                text=True, encoding="utf-8", timeout=60, check=True)
+        return result.stdout.strip()
+
+    found = {}
+    try:
+        root = Path(git("rev-parse", "--show-toplevel"))
+        if git("rev-parse", "--is-shallow-repository") != "false":
+            return  # A truncated history cannot prove when an album first appeared.
+        relative = output_dir.resolve().relative_to(root).as_posix()
+        history = git("log", "--reverse", "--format=%H%x09%cI", "--name-only", "--no-renames", "--diff-filter=AM",
+                      "--", ":(top)" + relative + "/*.csv")
+        commit, recorded = "", ""
+        for line in history.splitlines():
+            if "\t" in line:
+                commit, stamp = line.split("\t", 1)
+                recorded = datetime.fromisoformat(stamp).astimezone(timezone.utc).date().isoformat()
+            elif line and commit and re.fullmatch(re.escape(relative) + r"/\d{4}\.csv", line):
+                for row in csv.DictReader(io.StringIO(git("show", commit + ":" + line))):
+                    identifier = row.get("id")
+                    if identifier in missing:
+                        value = normalize_added_date(row.get("added_date", "")) or recorded
+                        found[identifier] = min(found.get(identifier, value), value)
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return  # No complete local history: legacy dates stay explicitly unknown.
+    for row in rows:
+        if not row["added_date"]:
+            row["added_date"] = found.get(row.get("id"), "")
 
 
 def enrich_cached_discogs_styles(rows, cache_dir):
@@ -1074,7 +1143,7 @@ def retained_exclusions(existing, observations):
         if row["release_type"] not in NON_ALBUMS:
             continue
         key = (album_key(row["artist"], row["album"]), row["release_type"], tuple(row["source_ids"]))
-        records[key] = {field: row[field] for field in FIELDS if field not in {"id", "lastfm_artist_tags"}}
+        records[key] = {field: row[field] for field in FIELDS if field not in {"id", "lastfm_artist_tags", "added_date"}}
     return [records[key] for key in sorted(records)]
 
 
@@ -1092,9 +1161,10 @@ def source_link(url):
 
 def render_markdown(year, rows):
     rows = [r for r in rows if int(r["year"]) == year]
-    lines = [f"# Post-rock albums — {year}", "", f"{len(rows)} albums. [Download CSV]({year}.csv).", "",
+    lines = [f"# Post-rock / post-metal albums — {year}", "", f"{len(rows)} albums. [Download CSV]({year}.csv).", "",
              "Generated from the CSV. An evolving catalog, not an exhaustive census.", "",
              "Each album stays on one line; scroll tables horizontally to see all columns and tags.", "",
+             "Added is the first date recorded in this catalog (UTC), independent of the release date; — means unknown.", "",
              "Artist tags are supplied by [Last.fm](https://www.last.fm) and describe the artist, not the album.", "",
              "Dates stay partial when the day/month is unknown. Future dates are announced releases and may change.", "",
              "Date status: **primary** = artist/label page; **reported** = catalog; **corrected** = sourced manual correction; **conflict** = sources disagree.", ""]
@@ -1104,13 +1174,13 @@ def render_markdown(year, rows):
         month = int(value[5:7]) if len(value) >= 7 else 0
         buckets.setdefault(month, []).append(row)
     for month in sorted(buckets, key=lambda m: m or 13):
-        headings = ["Date", "Artist", "Album", "Styles", "Last.fm artist tags", "Date status", "Sources", "Notes"]
+        headings = ["Date", "Added", "Artist", "Album", "Styles", "Last.fm artist tags", "Date status", "Sources", "Notes"]
         # GitHub preserves the nowrap cell attribute but strips inline styles.
         lines += ["## " + (calendar.month_name[month] if month else "Month unknown / needs review"), "",
                   "<table>", "<thead><tr>" + "".join(f"<th nowrap>{heading}</th>" for heading in headings) + "</tr></thead>",
                   "<tbody>"]
         for row in sorted(buckets[month], key=lambda r: (r["release_date"], r["artist"].casefold(), r["album"].casefold())):
-            cells = [row["release_date"] or "Unresolved", row["artist"], row["album"],
+            cells = [row["release_date"] or "Unresolved", row.get("added_date") or "—", row["artist"], row["album"],
                      ", ".join(style_list(row.get("styles", []))) or "—",
                      ", ".join(lastfm_tag_list(row.get("lastfm_artist_tags", []))) or "—", row["date_status"]]
             links = " ".join(source_link(u) for u in string_list(row["source_urls"]))
@@ -1183,6 +1253,7 @@ def main(argv=None):
         existing = read_catalog(args.output_dir)
         if args.lastfm_only:
             from lastfm import enrich
+            backfill_added_dates(existing, args.output_dir)
             errors = enrich(existing, set(args.year), args.cache_dir, args.offline, args.refresh)
             write_catalog(args.output_dir, existing, args.year)
             for error in errors:
@@ -1194,6 +1265,7 @@ def main(argv=None):
                     raise ValueError(f"No CSV for {year}")
                 atomic_write(args.output_dir / f"{year:04d}.md", render_markdown(year, existing))
             return 0
+        backfill_added_dates(existing, args.output_dir)
         corrections = load_list(args.corrections)
         validate_corrections(corrections)
         exclusions_path = args.output_dir / "excluded.json"

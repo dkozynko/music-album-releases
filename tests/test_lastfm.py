@@ -60,7 +60,9 @@ class LastfmTests(unittest.TestCase):
             self.assertEqual(rows[0].get('lastfm_artist_tags'), [])
             with contextlib.redirect_stdout(io.StringIO()): m.write_catalog(root, rows, {2026})
             migrated = m.read_catalog(root)[0]
-            self.assertEqual({k:v for k,v in migrated.items() if k != 'lastfm_artist_tags'}, {k:v for k,v in old.items() if k != 'lastfm_artist_tags'})
+            self.assertEqual({k:v for k,v in migrated.items() if k not in {'lastfm_artist_tags', 'added_date'}},
+                             {k:v for k,v in old.items() if k not in {'lastfm_artist_tags', 'added_date'}})
+            self.assertEqual(migrated['added_date'], '')
             self.assertIn('lastfm_artist_tags', (root / '2026.csv').read_text().splitlines()[0])
 
     def test_artist_url_encodes_punctuation_without_creating_an_album_path(self):

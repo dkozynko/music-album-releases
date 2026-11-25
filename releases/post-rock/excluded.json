@@ -30609,6 +30609,30 @@
   },
   {
     "year": 2025,
+    "artist": "Panopticon",
+    "album": "Songs of Hiraeth",
+    "styles": [
+      "atmospheric black metal",
+      "melodic black metal",
+      "post-black metal",
+      "post-metal"
+    ],
+    "release_date": "2025-08-15",
+    "date_status": "reported",
+    "release_type": "compilation",
+    "date_candidates": [
+      "2025-08-15"
+    ],
+    "source_ids": [
+      "musicbrainz:76862aec-b207-4878-b5db-4075a834f7c7"
+    ],
+    "source_urls": [
+      "https://musicbrainz.org/release-group/76862aec-b207-4878-b5db-4075a834f7c7"
+    ],
+    "notes": ""
+  },
+  {
+    "year": 2025,
     "artist": "Para establecer un Rio",
     "album": "A una muerte de renacer donde las divisiones dejarán de ser",
     "styles": [],
