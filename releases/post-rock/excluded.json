@@ -13678,6 +13678,27 @@
   {
     "year": 2026,
     "artist": "favesoul",
+    "album": "Silent Broadcast",
+    "styles": [],
+    "release_date": "2026-11-19",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-19"
+    ],
+    "source_ids": [
+      "postrocknation:68067"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68067/silent-broadcast",
+      "https://postrocknation.com/bands/3333/favesoul",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "favesoul",
     "album": "Take Care, Aries!",
     "styles": [],
     "release_date": "2026-09-22",
@@ -14088,6 +14109,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/18146/crown-shyness",
+      "https://postrocknation.com/bands/3138/flaw-order",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Flaw & Order",
+    "album": "The Irony of the Olive Branch",
+    "styles": [],
+    "release_date": "2026-11-20",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-20"
+    ],
+    "source_ids": [
+      "postrocknation:68073"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68073/the-irony-of-the-olive-branch",
       "https://postrocknation.com/bands/3138/flaw-order",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -14886,6 +14928,27 @@
     "source_urls": [
       "https://postrocknation.com/albums/17472/at-least",
       "https://postrocknation.com/bands/3144/frgmnts",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "From The Mouth of The Sun",
+    "album": "The Gift of Sound",
+    "styles": [],
+    "release_date": "2026-11-20",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-20"
+    ],
+    "source_ids": [
+      "postrocknation:68056"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68056/the-gift-of-sound",
+      "https://postrocknation.com/bands/1096/from-the-mouth-of-the-sun",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -19580,6 +19643,27 @@
   {
     "year": 2026,
     "artist": "Impulse Nine",
+    "album": "Fun Size",
+    "styles": [],
+    "release_date": "2026-10-23",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-10-23"
+    ],
+    "source_ids": [
+      "postrocknation:68061"
+    ],
+    "source_urls": [
+      "https://impulsenine.postrocknation.com",
+      "https://postrocknation.com/albums/68061/fun-size",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Impulse Nine",
     "album": "Starlight",
     "styles": [],
     "release_date": "2026-02-20",
@@ -20408,6 +20492,27 @@
     "source_urls": [
       "https://postrocknation.com/albums/39110/godlike-jesu-remix",
       "https://postrocknation.com/bands/2451/isaurian",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "isolate",
+    "album": "Suburbia",
+    "styles": [],
+    "release_date": "2026-11-20",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-20"
+    ],
+    "source_ids": [
+      "postrocknation:68055"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68055/suburbia",
+      "https://postrocknation.com/bands/1094/isolate",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -35009,6 +35114,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Seabreather",
+    "album": "From A Haze of Distant Evenings / A Reflection of the Cause",
+    "styles": [],
+    "release_date": "2026-11-20",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-20"
+    ],
+    "source_ids": [
+      "postrocknation:68058"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68058/from-a-haze-of-distant-evenings-a-reflection-of-the-cause",
+      "https://postrocknation.com/bands/1228/seabreather",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "Seabreather",
     "album": "Immemorial",
@@ -37986,6 +38112,27 @@
   },
   {
     "year": 2026,
+    "artist": "Sonar Signals",
+    "album": "Paramnesia",
+    "styles": [],
+    "release_date": "2026-11-27",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-27"
+    ],
+    "source_ids": [
+      "postrocknation:68074"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68074/paramnesia",
+      "https://postrocknation.com/bands/3127/sonar-signals",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
     "artist": "sonhos tomam conta",
     "album": "Ayaba Oxum",
     "styles": [],
@@ -39719,6 +39866,27 @@
   },
   {
     "year": 2026,
+    "artist": "Sundaug",
+    "album": "Image of You",
+    "styles": [],
+    "release_date": "2026-11-20",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-20"
+    ],
+    "source_ids": [
+      "postrocknation:68071"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68071/image-of-you",
+      "https://postrocknation.com/bands/3411/sundaug",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
     "artist": "SUNGRAVE",
     "album": "Cold Flesh and No One",
     "styles": [],
@@ -39901,6 +40069,27 @@
     "source_urls": [
       "https://postrocknation.com/albums/22244/winters-end",
       "https://postrocknation.com/bands/724/sun-shines-cold",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Sunthrown",
+    "album": "Bonehouse Sessions (Live)",
+    "styles": [],
+    "release_date": "2026-11-13",
+    "date_status": "reported",
+    "release_type": "live",
+    "date_candidates": [
+      "2026-11-13"
+    ],
+    "source_ids": [
+      "postrocknation:68054"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68054/bonehouse-sessions-live",
+      "https://postrocknation.com/bands/3223/sunthrown",
       "https://postrocknation.com/page/release-archive"
     ],
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
@@ -40447,6 +40636,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/22453/rotation",
+      "https://postrocknation.com/bands/2259/syndrome",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "Syndrome",
+    "album": "Slow Yo Roll",
+    "styles": [],
+    "release_date": "2026-11-20",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-20"
+    ],
+    "source_ids": [
+      "postrocknation:68075"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68075/slow-yo-roll",
       "https://postrocknation.com/bands/2259/syndrome",
       "https://postrocknation.com/page/release-archive"
     ],
@@ -46613,6 +46823,27 @@
     "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
   },
   {
+    "year": 2026,
+    "artist": "Triptych Wych",
+    "album": "EP2",
+    "styles": [],
+    "release_date": "2026-11-13",
+    "date_status": "reported",
+    "release_type": "ep",
+    "date_candidates": [
+      "2026-11-13"
+    ],
+    "source_ids": [
+      "postrocknation:68057"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68057/ep2",
+      "https://postrocknation.com/bands/3330/triptych-wych",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
     "year": 2025,
     "artist": "Triptych Wych",
     "album": "Permutations",
@@ -49522,6 +49753,27 @@
     ],
     "source_urls": [
       "https://postrocknation.com/albums/22570/walls",
+      "https://postrocknation.com/bands/3413/wegoingnowhere",
+      "https://postrocknation.com/page/release-archive"
+    ],
+    "notes": "Post-Rock Nation dates are catalog claims; genres are artist-level tags."
+  },
+  {
+    "year": 2026,
+    "artist": "wegoingnowhere",
+    "album": "why?",
+    "styles": [],
+    "release_date": "2026-11-20",
+    "date_status": "reported",
+    "release_type": "single",
+    "date_candidates": [
+      "2026-11-20"
+    ],
+    "source_ids": [
+      "postrocknation:68059"
+    ],
+    "source_urls": [
+      "https://postrocknation.com/albums/68059/why",
       "https://postrocknation.com/bands/3413/wegoingnowhere",
       "https://postrocknation.com/page/release-archive"
     ],
